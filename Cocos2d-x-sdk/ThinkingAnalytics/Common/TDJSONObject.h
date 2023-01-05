@@ -58,11 +58,6 @@ namespace thinkingdata {
         
         void setDateTime(const char *propertyName, time_t seconds, int milliseconds);
 
-        /**
-         * 设置时间为事件属性
-         * @param property_name 属性名
-         * @param value 时间字符串，格式需要是：2020-12-31 16:30:27.567
-         */
         void setDateTime(const char *propertyName, const char *value);
 
         void clear();

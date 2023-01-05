@@ -142,7 +142,7 @@ void ThinkingAnalyticsAPI::init(Config config)
         _config.enableEncrypt = true;
     }
     if (config.getPinningMode() != TASSLPinningNone) {
-        TDSecurityPolicy *securityPolicy = [TDSecurityPolicy policyWithPinningMode:config.getPinningMode() withPinnedCertificates:certificatesInBundle([NSBundle mainBundle])];
+        TDSecurityPolicy *securityPolicy = [TDSecurityPolicy policyWithPinningMode:config.getPinningMode()];
         _config.securityPolicy = securityPolicy;
         [_config.securityPolicy setSessionDidReceiveAuthenticationChallenge:^NSURLSessionAuthChallengeDisposition(NSURLSession * _Nullable session, NSURLAuthenticationChallenge * _Nullable challenge, NSURLCredential * _Nullable * _Nullable credential) {
             return NSURLSessionAuthChallengePerformDefaultHandling;

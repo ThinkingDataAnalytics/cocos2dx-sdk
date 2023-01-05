@@ -12,7 +12,7 @@ USING_NS_CC;
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 extern "C"{
-// Jni 全局实例
+//
 //static JniMethodInfo sMethodInfo;
 //static bool isMethodExist(const char *methodName, const char *methodDescription) {
 //    if (JniHelper::getStaticMethodInfo(sMethodInfo,THINKING_JAVA_CLASS,methodName,methodDescription)) {
@@ -20,12 +20,7 @@ extern "C"{
 //    }
 //    return false;
 //}
-/**
- * 将 jstring 转化为 string
- * @param env env
- * @param jString jString
- * @return
- */
+
 static string jStringToString(JNIEnv *env, jstring jString) {
     if (jString == NULL || env == NULL) {
         return "";
@@ -36,7 +31,7 @@ static string jStringToString(JNIEnv *env, jstring jString) {
     return ret;
 }
 
-// java jsonobject 转化为C++ TDJSONObject
+// java jsonobject cover to C++ TDJSONObject
 static TDJSONObject TDJSONObjectFromJSONObject(JNIEnv *env,jobject object)
 {
 
@@ -138,13 +133,6 @@ static void releaseMethod(JniMethodInfo &method)
 }
 
 
-
-/**
- * TDJSONObject 转化为 JSONObjec 对象
- * @param env env
- * @param properties TDJSONObject
- * @return 返回 JSONObject 对象
- */
 static jobject createJavaJsonObject(JNIEnv *env, const thinkingdata::TDJSONObject *properties) {
     jclass classJSONObject = env->FindClass("org/json/JSONObject");
     jmethodID constructMethod = env->GetMethodID(classJSONObject,
@@ -207,11 +195,6 @@ static void trackEvent(ThinkingAnalyticsEvent* event,int type,string appId)
 }
 }
 
-
-
-/**
- *事件上报接口
- */
 void ThinkingAnalyticsAPI::track(string eventName,string appId)
 {
     TDJSONObject dynamicProperties = getDynamicProperties(appId);
@@ -781,9 +764,9 @@ void ThinkingAnalyticsAPI::init(Config config) {
     JniMethodInfo methodInfo1;
     if(JniHelper::getStaticMethodInfo(methodInfo1,THINKING_JAVA_CLASS,"sharedInstance","(Lcn/thinkingdata/android/TDConfig;IILjava/lang/String;)Lcn/thinkingdata/android/ThinkingAnalyticsSDK;"))
     {
-        //是否开启加密
+
         int enableEncrypt = config.getEnableEncrypt();
-        //公钥
+
         int version = config.getSecretKey().version;
         jstring keyy = methodInfo.env->NewStringUTF(config.getSecretKey().publicKey.c_str());
         methodInfo1.env->CallStaticObjectMethod(methodInfo1.classID, methodInfo1.methodID,_config,enableEncrypt, version, keyy);

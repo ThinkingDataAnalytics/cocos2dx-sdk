@@ -116,7 +116,7 @@ Scene* HelloWorld::createScene()
 
 void showInstanceMessage() {
 
-//    //国家和集群的配置关系
+
 //    map<string, string> countryConfig = {
 //            { "IN","IN" },{ "IE","EU" },{ "EE","EU" },{ "AT","EU" },
 //            { "BG","EU" },{ "BE","EU" },{ "PL","EU" },{ "DK","EU" },
@@ -127,34 +127,30 @@ void showInstanceMessage() {
 //            { "SI","EU" },{ "HU","EU" },{ "ES","EU" },{ "GR","EU" },
 //            { "IT","EU" },{ "GB","EU" } };
 //
-//    // 查找每个区域对应的服务器地址
 //    string ls_location = ThinkingAnalyticsAPI::getLocalRegion();
 //    std::map<string, string>::iterator clusterIter = countryConfig.find(ls_location);
 //
-//    // // 默认为新加坡区 ;
 //    string ta_cluster_region = "SG";
 //    if (clusterIter != countryConfig.end()) {
 //        ta_cluster_region = clusterIter->second;
 //    }
 //
-//    //通过集群名称获取集群配置的数据上报地址
-//    string ls_ta_server = "https://ta-receiver-sgp.g.mi.com";//新加坡集群上报地址
-//    if (ta_cluster_region == "IN")ls_ta_server = "https://ta-receiver-mb.g.mi.com"; //印度集群上报地址
-//    if (ta_cluster_region == "EU")ls_ta_server = "https://ta-receiver-eu.g.mi.com"; //欧洲集群上报地址
-//    if (ta_cluster_region == "RU")ls_ta_server = "https://ta-receiver-rus.g.mi.com";//俄罗斯集群上报地址
+
+//    string ls_ta_server = "https://ta-receiver-sgp.g.mi.com";
+//    if (ta_cluster_region == "IN")ls_ta_server = "https://ta-receiver-mb.g.mi.com"; 
+//    if (ta_cluster_region == "EU")ls_ta_server = "https://ta-receiver-eu.g.mi.com"; 
+//    if (ta_cluster_region == "RU")ls_ta_server = "https://ta-receiver-rus.g.mi.com";
 //
-//    //开始SDK初始化
 //    string ls_ta_appid = "e36b56a0c1f54887b296bfd6736e811c";
 //    ThinkingAnalyticsAPI::init(ls_ta_appid, ls_ta_server);
 //
-//    // 设置好通用参数
 //    TDJSONObject superProperties;
 //    superProperties.setString("ta_local_region", ls_location.c_str());
 //    superProperties.setString("ta_cluster_region", ta_cluster_region.c_str());
 //    superProperties.setString("ta_cluster_server", ls_ta_server.c_str());
 //    ThinkingAnalyticsAPI::setSuperProperties(superProperties);
 //
-//    // 开启自动追踪
+
 //    ThinkingAnalyticsAPI::enableAutoTrack();
 //
 //    ThinkingAnalyticsAPI::enableTrackLog(true);
