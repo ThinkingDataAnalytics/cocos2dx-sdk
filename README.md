@@ -5,5 +5,6 @@ This is the [ThinkingData](https://www.thinkingdata.cn)™ SDK for Cocos2d-x. Do
 
 - [English](https://docs.thinkingdata.cn/ta-manual/latest/en/99oQ5UeGzK09DWfPCaQwCg/installation/client_sdk/game_engine_installation/cocos2d-x_sdk_installation/cocos2d-x_sdk_installation.html)
 - [中文](https://docs.thinkingdata.cn/ta-manual/latest/installation/installation_menu/client_sdk/game_engine_sdk_installation/cocos2d-x_sdk_installation/cocos2d-x_sdk_installation.html)
+- [日本語](https://docs.thinkingdata.io/ta-manual/v4.0/ja/installation/installation_menu/client_sdk/game_engine_sdk_installation/cocos2d-x_sdk_installation/cocos2d-x_sdk_installation.html)
 
 ---
