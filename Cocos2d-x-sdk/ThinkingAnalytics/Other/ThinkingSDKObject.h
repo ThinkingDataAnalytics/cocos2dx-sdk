@@ -1,6 +1,6 @@
 //
 //  ThinkingSDKObject.h
-//  helloworldapp
+//  ThinkingEngine
 //
 //  Created by wwango on 2021/12/20.
 //
@@ -75,7 +75,7 @@ namespace thinkingdata {
         void user_add(const TDJSONObject &properties);
         void user_delete();
         void user_unset(string propertyName);
-       
+        void user_uniqAppend(const TDJSONObject &properties);
         void clearSuperProperties();
         void unsetSuperProperty(string superPropertyName);
         void setSuperProperties(const TDJSONObject &properties);

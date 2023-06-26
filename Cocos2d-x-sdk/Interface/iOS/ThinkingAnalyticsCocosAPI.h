@@ -6,8 +6,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "TDConfig.h"
-#import "TDPresetProperties.h"
+#import <ThinkingSDK/TDConfig.h>
+#import <ThinkingSDK/TDPresetProperties.h>
+
 @class ThinkingAnalyticsSDK;
 NS_ASSUME_NONNULL_BEGIN
 @interface ThinkingAnalyticsCocosAPI : NSObject
@@ -25,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)user_setOnce:(NSDictionary *)userProperties appid:(NSString *)appid;
 + (void)user_add:(NSDictionary *)userProperties appid:(NSString *)appid;
 + (void)user_append:(NSDictionary *)userProperties appid:(NSString *)appid;
++ (void)user_uniqAppend:(NSDictionary *)userProperties appid:(NSString *)appid;
 + (void)user_delete:(NSString *)appid;
 + (void)user_unset:(NSString *)propertyName appid:(NSString *)appid;
 + (void)setSuperProperties:(NSDictionary *)supperProperties appid:(NSString *)appid;
@@ -32,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)clearSuperProperties:(NSString *)appid;
 + (void)unsetSuperProperty:(NSString *)supperPropertyName appid:(NSString *)appid;
 + (void)enableAutoTrack:(NSString *)appid;
++ (void)enableAutoTrack:(NSString *)appid eventType:(int)eventType customMap:(NSDictionary *)customMap;
 + (void)flush:(NSString *)appid;
 
 + (void)enableTracking:(BOOL)enabled appid:(NSString *)appid;
@@ -48,6 +51,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setCustomerLibInfoWithLibName:(NSString *)libName libVersion:(nonnull NSString *)libVersion;
 + (NSString*)currentAppId:(NSString*)appId;
 + (nullable NSString *)getLocalRegion;
+
++ (void)enableThirdPartySharing:(int)type customMap:(NSDictionary *)properties appid:(NSString *)appId;
++ (void)setTrackStatus:(int)status appid:(NSString *)appId;
 @end
 
 NS_ASSUME_NONNULL_END

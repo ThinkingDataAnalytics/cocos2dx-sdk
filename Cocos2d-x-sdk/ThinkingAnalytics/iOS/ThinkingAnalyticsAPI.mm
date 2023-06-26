@@ -1,5 +1,5 @@
 #import <ThinkingSDK/ThinkingSDK.h>
-#import <ThinkingSDK/ThinkingAnalyticsCocosAPI.h>
+#import "ThinkingAnalyticsCocosAPI.h"
 #import <Foundation/Foundation.h>
 #include "../Common/ThinkingAnalyticsAPI.h"
 using  namespace thinkingdata;
@@ -322,7 +322,7 @@ void ThinkingAnalyticsAPI::setDynamicSuperProperties(GetDynamicSuperProperties g
 {
     if(currentAppId(appid) == "")
     {
-        printf("%s","Please initialize the SDK first");
+        printf("[ThinkingEngine] Info: %s","Please initialize the SDK first");
     }else
     {
         dynamicPropertiesMap[currentAppId(appid)] = getDynamicSuperProperties;

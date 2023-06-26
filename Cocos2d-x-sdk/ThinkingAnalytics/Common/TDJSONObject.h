@@ -16,6 +16,10 @@ namespace thinkingdata {
         TAThirdPartyTypeTOPON              = 1 << 4,
         TAThirdPartyTypeTRACKING           = 1 << 5,
         TAThirdPartyTypeTRADPLUS           = 1 << 6,
+        TAThirdPartyTypeAPPLOVIN           = 1 << 7,
+        TAThirdPartyTypeKOCHAVA            = 1 << 8,
+        TAThirdPartyTypeTALKINGDATA        = 1 << 9,
+        TAThirdPartyTypeFIREBASE           = 1 << 10,
     };
 
     enum TATrackType {

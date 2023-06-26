@@ -181,10 +181,11 @@ typedef NS_OPTIONS(NSInteger, TAThirdPartyShareType) {
     TAThirdPartyShareTypeTOPON              = 1 << 4,
     TAThirdPartyShareTypeTRACKING           = 1 << 5,
     TAThirdPartyShareTypeTRADPLUS           = 1 << 6,
+    TAThirdPartyShareTypeAPPLOVIN           = 1 << 7,
+    TAThirdPartyShareTypeKOCHAVA            = 1 << 8,
+    TAThirdPartyShareTypeTALKINGDATA        = 1 << 9,
+    TAThirdPartyShareTypeFIREBASE           = 1 << 10,
     
-};
-
-typedef NS_OPTIONS(NSInteger, TDThirdPartyShareType) {
     
     TDThirdPartyShareTypeNONE               = TAThirdPartyShareTypeNONE,
     TDThirdPartyShareTypeAPPSFLYER          = TAThirdPartyShareTypeAPPSFLYER,
@@ -194,6 +195,7 @@ typedef NS_OPTIONS(NSInteger, TDThirdPartyShareType) {
     TDThirdPartyShareTypeTOPON              = TAThirdPartyShareTypeTOPON,
     TDThirdPartyShareTypeTRACKING           = TAThirdPartyShareTypeTRACKING,
     TDThirdPartyShareTypeTRADPLUS           = TAThirdPartyShareTypeTRADPLUS,
+    
 };
 
 //MARK: - 数据上报状态

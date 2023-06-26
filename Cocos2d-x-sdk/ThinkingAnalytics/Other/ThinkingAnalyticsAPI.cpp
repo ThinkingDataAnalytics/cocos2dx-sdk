@@ -22,6 +22,7 @@ const static string TD_EVENT_TYPE_USER_SET        = "user_set";
 const static string TD_EVENT_TYPE_USER_SETONCE    = "user_setOnce";
 const static string TD_EVENT_TYPE_USER_UNSET      = "user_unset";
 const static string TD_EVENT_TYPE_USER_APPEND     = "user_append";
+const static string TD_EVENT_TYPE_USER_UNIQ_APPEND = "user_uniqAppend";
 
 typedef std::map<string , ThinkingSDKObject*> MAP_THINKING_OBJECT;
 typedef std::map<string , GetDynamicSuperProperties> MAP_THINKING_DYNAMICSUPERPROPERTIES;
@@ -130,7 +131,7 @@ void ThinkingAnalyticsAPI::timeEvent(string eventName,string appId)
 {
     timeb t;
     ftime(&t);
-    maptimeEvents[appId][eventName] = t.time*1000 + t.millitm;
+    maptimeEvents[currentAppId(appId)][eventName] = t.time*1000 + t.millitm;
 }
 void ThinkingAnalyticsAPI::login(string accountID,string appId)
 {
@@ -168,6 +169,12 @@ void ThinkingAnalyticsAPI::user_append(const TDJSONObject &properties,string app
     if (obj == NULL) {return;}
     obj->user_append(properties);
 }
+void ThinkingAnalyticsAPI::user_uniqAppend(const TDJSONObject &properties,string appid)
+{
+    ThinkingSDKObject *obj = mapInstances[currentAppId(appid)];
+    if (obj == NULL) {return;}
+    obj->user_uniqAppend(properties);
+}
 void ThinkingAnalyticsAPI::user_add(const TDJSONObject &properties,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
@@ -188,11 +195,15 @@ void ThinkingAnalyticsAPI::user_unset(string propertyName,string appId)
 }
 void ThinkingAnalyticsAPI::enableAutoTrack(string appId)
 {
-    printf("ThinkingAnalytics SDK does not support this platform \n");
+    printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support enableAutoTrack on this platform \n");
+}
+void ThinkingAnalyticsAPI::enableAutoTrack(const TDJSONObject &properties, TAAutoTrackType eventType, string appId)
+{
+    printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support enableAutoTrack on this platform \n");
 }
 void ThinkingAnalyticsAPI::flush(string appId)
 {
-    printf("ThinkingAnalytics SDK does not support this platform \n");
+    printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support flush on this platform \n");
 }
 string ThinkingAnalyticsAPI::getDeviceId()
 {
@@ -277,14 +288,45 @@ PresetProperties* ThinkingAnalyticsAPI::getPresetProperties(string appId)
     return presetProperties;
 }
 void ThinkingAnalyticsAPI::calibrateTime(long long timestamp) {
-    printf("ThinkingAnalytics SDK does not support this platform \n");
+    printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support calibrateTime on this platform \n");
 }
 void ThinkingAnalyticsAPI::calibrateTimeWithNtp(string ntpServer) {
-    printf("ThinkingAnalytics SDK does not support this platform \n");
+    printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support calibrateTimeWithNtp on this platform \n");
 }
 string ThinkingAnalyticsAPI::getLocalRegion() {
-    printf("ThinkingAnalytics SDK does not support this platform \n");
+    printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support getLocalRegion on this platform \n");
     return "";
+}
+void ThinkingAnalyticsAPI::enableThirdPartySharing(TAThirdPartyType type, string appId)
+{
+    printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support enableThirdPartySharing on this platform \n");
+}
+
+void ThinkingAnalyticsAPI::enableThirdPartySharing(TAThirdPartyType type, const TDJSONObject &properties, string appId)
+{
+    printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support enableThirdPartySharing on this platform \n");
+}
+
+void ThinkingAnalyticsAPI::setTrackStatus(TATrackType status, string appId)
+{
+    if (status==TATrackTypePause)
+    {
+        ThinkingAnalyticsAPI::optOutTracking(appId);
+    }
+    else if (status==TATrackTypeStop)
+    {
+        ThinkingAnalyticsAPI::optOutTrackingAndDeleteUser(appId);
+    }
+    else if (status==TATrackTypeSaveOnly)
+    {
+        ThinkingAnalyticsAPI::setTrackStatus(TATrackTypeNormal, appId);
+    }
+    else
+    {
+        ThinkingAnalyticsAPI::optInTracking(appId);
+        ThinkingAnalyticsAPI::enableTracking(true, appId);
+    }
+    CCLOG("ThinkingSDK set status: %u", status);
 }
 
 TDJSONObject ThinkingAnalyticsAPI::getSuperProperties(string appId) {
@@ -306,7 +348,7 @@ void ThinkingAnalyticsAPI::setDynamicSuperProperties(GetDynamicSuperProperties g
     mapDyldProperties[currentAppId(appId)] = getDynamicSuperProperties;
 }
 string ThinkingAnalyticsAPI::createLightInstance(string appId) {
-    printf("ThinkingAnalytics SDK does not support this platform \n");
+    printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support createLightInstance on this platform \n");
     return "";
 }
 void ThinkingAnalyticsAPI::init(Config config) {
@@ -396,7 +438,7 @@ ThinkingSDKObject::ThinkingSDKObject(string appid, string server, string name)
 
 ThinkingSDKObject::~ThinkingSDKObject()
 {
-    printf("*** ThinkingSDKObject is being deleted  ****");
+    printf("[ThinkingEngine] Info: *** ThinkingSDKObject is being deleted  ****");
 }
 
 void ThinkingSDKObject::track(string eventName) {
@@ -433,6 +475,9 @@ void ThinkingSDKObject::user_setOnce(const thinkingdata::TDJSONObject &propertie
 }
 void ThinkingSDKObject::user_append(const thinkingdata::TDJSONObject &properties) {
     flushUser(TD_EVENT_TYPE_USER_APPEND, properties);
+}
+void ThinkingSDKObject::user_uniqAppend(const thinkingdata::TDJSONObject &properties) {
+    flushUser(TD_EVENT_TYPE_USER_UNIQ_APPEND, properties);
 }
 void ThinkingSDKObject::user_add(const thinkingdata::TDJSONObject &properties) {
     flushUser(TD_EVENT_TYPE_USER_ADD, properties);
@@ -656,10 +701,12 @@ void ThinkingSDKObject::flush(string eventName, string eventType, const TDJSONOb
 {
     
     if (this->m_enable == false) {
+        CCLOG("ThinkingSDK is Pause!");
         return;
     }
     
     if (this->m_optOutTracking == true) {
+        CCLOG("ThinkingSDK is Stop!");
         return;
     }
     
@@ -765,6 +812,11 @@ void ThinkingSDKObject::flush(string eventName, string eventType, const TDJSONOb
     }
     
     HttpRequest* request = new HttpRequest();
+    std::vector<std::string> headers;
+    headers.push_back("TA-Integration-Count: 1");
+    headers.push_back("TA-Integration-Extra: PC");
+    headers.push_back("TA-Integration-Type: "+ LIB_NAME);
+    headers.push_back("TA-Integration-Version: "+ LIB_VERSION);
     request->setRequestType(HttpRequest::Type::POST);
     request->setUrl(url);
     request->setRequestData(postData.c_str(), strlen(postData.c_str()));

@@ -745,31 +745,23 @@ void ThinkingAnalyticsAPI::init(Config config) {
     jstring _name = jniGetConfig.env->NewStringUTF(config.getName().c_str());
     jobject _config = (jobject) jniGetConfig.env->CallStaticObjectMethod(
             jniGetConfig.classID, jniGetConfig.methodID,_context,_appId,_server,_name);
-    if(config.getModel() != TD_NORMAL)
-    {
-        jclass clazz = jniGetConfig.env->GetObjectClass(_config);
-        jmethodID _setDebugModel = jniGetConfig.env->GetMethodID(clazz,"setModeInt","(I)V");
-        if(config.getModel() == TD_DEBUG)
-        {
-            jniGetConfig.env->CallVoidMethod(_config,_setDebugModel,1);
-        }else if(config.getModel() == TD_DEBUG_ONLY)
-        {
-            jniGetConfig.env->CallVoidMethod(_config,_setDebugModel,2);
-        }
-        jniGetConfig.env->DeleteLocalRef(clazz);
-    }
-
     releaseMethod(jniGetConfig);
 
     JniMethodInfo methodInfo1;
-    if(JniHelper::getStaticMethodInfo(methodInfo1,THINKING_JAVA_CLASS,"sharedInstance","(Lcn/thinkingdata/android/TDConfig;IILjava/lang/String;)Lcn/thinkingdata/android/ThinkingAnalyticsSDK;"))
+    if(JniHelper::getStaticMethodInfo(methodInfo1,THINKING_JAVA_CLASS,"sharedInstance","(Lcn/thinkingdata/android/TDConfig;IIILjava/lang/String;)Lcn/thinkingdata/android/ThinkingAnalyticsSDK;"))
     {
-
+        int mode = 0;
+        if(config.getModel() == TD_DEBUG) {
+            mode = 1;
+        }
+        else if(config.getModel() == TD_DEBUG_ONLY) {
+            mode = 2;
+        }
         int enableEncrypt = config.getEnableEncrypt();
 
         int version = config.getSecretKey().version;
         jstring keyy = methodInfo.env->NewStringUTF(config.getSecretKey().publicKey.c_str());
-        methodInfo1.env->CallStaticObjectMethod(methodInfo1.classID, methodInfo1.methodID,_config,enableEncrypt, version, keyy);
+        methodInfo1.env->CallStaticObjectMethod(methodInfo1.classID, methodInfo1.methodID,_config, mode, enableEncrypt, version, keyy);
         methodInfo.env->DeleteLocalRef(keyy);
     }
     methodInfo1.env->DeleteLocalRef(_context);

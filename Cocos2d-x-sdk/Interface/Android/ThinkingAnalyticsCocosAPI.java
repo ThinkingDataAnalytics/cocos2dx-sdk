@@ -9,17 +9,19 @@ import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import cn.thinkingdata.android.utils.TDConstants;
+import cn.thinkingdata.android.encrypt.TDSecreteKey;
 import cn.thinkingdata.android.utils.TDLog;
 
 public class ThinkingAnalyticsCocosAPI {
@@ -46,6 +48,29 @@ public class ThinkingAnalyticsCocosAPI {
         }
         return ThinkingAnalyticsSDK.sharedInstance(config);
     }
+
+    public static ThinkingAnalyticsSDK sharedInstance(TDConfig config, int enableEncrypt, int version, String publicKey) {
+        if (enableEncrypt == 1) {
+            config.enableEncrypt(true);
+            TDSecreteKey secreteKey = new TDSecreteKey();
+            secreteKey.publicKey = publicKey;
+            secreteKey.version = version;
+            secreteKey.symmetricEncryption = "AES";
+            secreteKey.asymmetricEncryption = "RSA";
+            config.setSecretKey(secreteKey);
+        }
+
+        String instanceName = TextUtils.isEmpty(config.getName()) ? config.mToken : config.getName();
+        ThinkingAnalyticsSDK instance = (ThinkingAnalyticsSDK)sInstances.get(instanceName);
+        if (instance == null) {
+            instance = ThinkingAnalyticsSDK.sharedInstance(config);
+            sInstances.put(instanceName, instance);
+            sAppIds.add(instanceName);
+        }
+
+        return ThinkingAnalyticsSDK.sharedInstance(config);
+    }
+
     public static String createLightInstance(String appId)
     {
        ThinkingAnalyticsSDK instance =  currentInstance(appId).createLightInstance();
@@ -211,6 +236,12 @@ public class ThinkingAnalyticsCocosAPI {
         }
     }
 
+    public static  void user_uniqAppend(JSONObject property,String appId) {
+        if(currentInstance(appId) != null)
+        {
+            currentInstance(appId).user_uniqAppend(property);
+        }
+    }
 
     public static  void user_add(String propertyName, Number propertyValue,String appId) {
         if(currentInstance(appId) != null)
@@ -289,11 +320,49 @@ public class ThinkingAnalyticsCocosAPI {
         typeList.add(ThinkingAnalyticsSDK.AutoTrackEventType.APP_START);
         typeList.add(ThinkingAnalyticsSDK.AutoTrackEventType.APP_INSTALL);
         typeList.add(ThinkingAnalyticsSDK.AutoTrackEventType.APP_END);
+        typeList.add(ThinkingAnalyticsSDK.AutoTrackEventType.APP_CRASH);
         if(currentInstance(appId) != null)
         {
             currentInstance(appId).enableAutoTrack(typeList);
         }
     }
+
+    public static void enableAutoTrack(String appId, JSONObject properties) {
+        List<ThinkingAnalyticsSDK.AutoTrackEventType> typeList = new ArrayList();
+        typeList.add(ThinkingAnalyticsSDK.AutoTrackEventType.APP_START);
+        typeList.add(ThinkingAnalyticsSDK.AutoTrackEventType.APP_INSTALL);
+        typeList.add(ThinkingAnalyticsSDK.AutoTrackEventType.APP_END);
+        typeList.add(ThinkingAnalyticsSDK.AutoTrackEventType.APP_CRASH);
+        if (currentInstance(appId) != null) {
+            currentInstance(appId).enableAutoTrack(typeList, properties);
+        }
+
+    }
+
+    public static void enableAutoTrack(String appId, int type, JSONObject properties) {
+        List<ThinkingAnalyticsSDK.AutoTrackEventType> typeList = new ArrayList();
+        if ((type & 1) > 0) {
+            typeList.add(ThinkingAnalyticsSDK.AutoTrackEventType.APP_START);
+        }
+
+        if ((type & 2) > 0) {
+            typeList.add(ThinkingAnalyticsSDK.AutoTrackEventType.APP_END);
+        }
+
+        if ((type & 4) > 0) {
+            typeList.add(ThinkingAnalyticsSDK.AutoTrackEventType.APP_CRASH);
+        }
+
+        if ((type & 8) > 0) {
+            typeList.add(ThinkingAnalyticsSDK.AutoTrackEventType.APP_INSTALL);
+        }
+
+        if (currentInstance(appId) != null) {
+            currentInstance(appId).enableAutoTrack(typeList, properties);
+        }
+
+    }
+
     public static  void flush(String appId) {
         if(currentInstance(appId) != null)
         {
@@ -352,5 +421,62 @@ public class ThinkingAnalyticsCocosAPI {
     public static void calibrateTime(long timestamp)
     {
         ThinkingAnalyticsSDK.calibrateTime(timestamp);
+    }
+
+    public static void setTrackStatus(int status, String appId) {
+        if (currentInstance(appId) != null) {
+            if (status == 0) {
+                currentInstance(appId).setTrackStatus(ThinkingAnalyticsSDK.TATrackStatus.PAUSE);
+            } else if (status == 1) {
+                currentInstance(appId).setTrackStatus(ThinkingAnalyticsSDK.TATrackStatus.STOP);
+            } else if (status == 2) {
+                currentInstance(appId).setTrackStatus(ThinkingAnalyticsSDK.TATrackStatus.SAVE_ONLY);
+            } else if (status == 3) {
+                currentInstance(appId).setTrackStatus(ThinkingAnalyticsSDK.TATrackStatus.NORMAL);
+            }
+        }
+
+    }
+
+    public static List<Map<String, Object>> jsonArr2Map(JSONArray jsonArr) throws Exception {
+        List<Map<String, Object>> list = new ArrayList();
+
+        for(int j = 0; j < jsonArr.length(); ++j) {
+            if (jsonArr.get(j) instanceof JSONObject) {
+                list.add(jsonObject2Map((JSONObject)jsonArr.get(j)));
+            }
+        }
+
+        return list;
+    }
+
+    public static Map<String, Object> jsonObject2Map(JSONObject jsonObject) throws Exception {
+        Map<String, Object> map = new HashMap();
+        Iterator i = jsonObject.keys();
+
+        while(i.hasNext()) {
+            String key = (String)i.next();
+            Object value = jsonObject.getString(key);
+            if (value instanceof JSONObject) {
+                map.put(key, jsonObject2Map((JSONObject)value));
+            } else if (value instanceof JSONArray) {
+                map.put(key, jsonArr2Map((JSONArray)value));
+            } else {
+                map.put(key, value);
+            }
+        }
+
+        return map;
+    }
+
+    public static void enableThirdPartySharing(JSONObject properties, int type, String appId) {
+        if (currentInstance(appId) != null) {
+            try {
+                currentInstance(appId).enableThirdPartySharing(type, jsonObject2Map(properties));
+            } catch (Exception var4) {
+                var4.printStackTrace();
+            }
+        }
+
     }
 }

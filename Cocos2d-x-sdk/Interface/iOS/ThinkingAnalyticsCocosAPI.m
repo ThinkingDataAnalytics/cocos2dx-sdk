@@ -7,7 +7,7 @@
 
 #import "ThinkingAnalyticsCocosAPI.h"
 #import "ThinkingAnalyticsSDK.h"
-#import "TDLogging.h"
+//#import <ThinkingSDK/TDLogging.h>
 static ThinkingAnalyticsSDK* instance;
 
 static NSMutableDictionary* sInstances;
@@ -34,7 +34,7 @@ static NSMutableArray*      sAppIds;
     }
     if(instance == nil)
     {
-        TDLogInfo(@"Instance does not exist");
+//        TDLogInfo(@"Instance does not exist");
     }
     return  instance;
 }
@@ -232,6 +232,14 @@ static NSMutableArray*      sAppIds;
     }
 }
 
++ (void)user_uniqAppend:(NSDictionary *)userProperties appid:(NSString *)appid
+{
+    if([self currentInstance:appid] != nil)
+    {
+        [[self currentInstance:appid]user_append:userProperties];
+    }
+}
+
 + (void)user_delete:(NSString *)appid
 {
     if([self currentInstance:appid] != nil)
@@ -289,6 +297,10 @@ static NSMutableArray*      sAppIds;
         [[self currentInstance:appid] enableAutoTrack:ThinkingAnalyticsEventTypeAppStart | ThinkingAnalyticsEventTypeAppInstall |
          ThinkingAnalyticsEventTypeAppEnd];
     }
+}
+
++ (void)enableAutoTrack:(NSString *)appid eventType:(int)eventType customMap:(NSDictionary *)customMap {
+    [[self currentInstance:appid] enableAutoTrack:eventType properties:customMap];
 }
 
 + (void)flush:(NSString *)appid
@@ -356,6 +368,20 @@ static NSMutableArray*      sAppIds;
 + (NSString *)getLocalRegion
 {
     return [ThinkingAnalyticsSDK getLocalRegion];
+}
+
++ (void)enableThirdPartySharing:(int)type customMap:(NSDictionary *)properties appid:(NSString *)appId {
+    if([self currentInstance:appId] != nil)
+    {
+        [[self currentInstance:appId] enableThirdPartySharing:type customMap:properties];
+    }
+}
+
++ (void)setTrackStatus:(int)status appid:(NSString *)appId {
+    if([self currentInstance:appId] != nil)
+    {
+        [[self currentInstance:appId] setTrackStatus:status];
+    }
 }
 
 @end
