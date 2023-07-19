@@ -3,7 +3,7 @@
 #include <sstream>
 #include "TDJSONObject.h"
 const string LIB_NAME = "Cocos2d-x";
-const string LIB_VERSION = "1.3.4.1";
+const string LIB_VERSION = "1.3.5-beta.1";
 
 using namespace std;
 template < typename TDType >
