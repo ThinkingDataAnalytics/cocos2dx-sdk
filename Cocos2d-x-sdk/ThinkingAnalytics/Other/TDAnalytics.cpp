@@ -7,7 +7,7 @@
 #include "json/rapidjson.h"
 #include "json/document.h"
 
-using namespace thinkingdata;
+using namespace thinkingdata::analytics;
 using namespace cocos2d::network;
 using namespace rapidjson;
 
@@ -27,7 +27,7 @@ const static string TD_EVENT_TYPE_USER_UNIQ_APPEND = "user_uniqAppend";
 typedef std::map<string , ThinkingSDKObject*> MAP_THINKING_OBJECT;
 typedef std::map<string , GetDynamicSuperProperties> MAP_THINKING_DYNAMICSUPERPROPERTIES;
 typedef std::map<string , TDJSONObject> MAP_THINKING_SUPERPROPERTIES;
-typedef std::map<string, thinkingdata::TDJSONObject::ValueNode> TD_MAP_TYPE;
+typedef std::map<string, thinkingdata::analytics::TDJSONObject::ValueNode> TD_MAP_TYPE;
 typedef std::map<string, long long> TD_MAP_TIME_EVENT;
 typedef std::map<string, TD_MAP_TIME_EVENT> TD_APPID_MAP_TIME_EVENT;
 
@@ -97,119 +97,119 @@ string td_getWindowsUUID()
 
 bool showLog;
 
-void ThinkingAnalyticsAPI::track(string eventName,string appId)
+void TDAnalytics::track(string eventName,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->track(eventName, TDJSONObject());
 }
-void ThinkingAnalyticsAPI::track(string eventName,const TDJSONObject& node,string appId)
+void TDAnalytics::track(string eventName,const TDJSONObject& node,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->track(eventName, node);
 }
-void ThinkingAnalyticsAPI::track(TDFirstEvent* firstEvent,string appId)
+void TDAnalytics::track(TDFirstEventModel* firstEvent,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->trackFirst(firstEvent);
 }
-void ThinkingAnalyticsAPI::track(TDUpdatableEvent* updatableEvent,string appId)
+void TDAnalytics::track(TDUpdatableEventModel* updatableEvent,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->trackUpdate(updatableEvent);
 }
-void ThinkingAnalyticsAPI::track(TDOverWritableEvent* overWritableEvent,string appId)
+void TDAnalytics::track(TDOverwritableEventModel* overWritableEvent,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->trackOverWrite(overWritableEvent);
 }
-void ThinkingAnalyticsAPI::timeEvent(string eventName,string appId)
+void TDAnalytics::timeEvent(string eventName,string appId)
 {
     timeb t;
     ftime(&t);
     maptimeEvents[currentAppId(appId)][eventName] = t.time*1000 + t.millitm;
 }
-void ThinkingAnalyticsAPI::login(string accountID,string appId)
+void TDAnalytics::login(string accountID,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->login(accountID);
 }
-void ThinkingAnalyticsAPI::logout(string appId)
+void TDAnalytics::logout(string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->logout();
 }
-void ThinkingAnalyticsAPI::identify(string distinctId,string appId)
+void TDAnalytics::setDistinctId(string distinctId,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->setDistinctId(distinctId);
 }
-void ThinkingAnalyticsAPI::user_set(const TDJSONObject &properties,string appId)
+void TDAnalytics::userSet(const TDJSONObject &properties,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->user_set(properties);
 }
-void ThinkingAnalyticsAPI::user_setOnce(const TDJSONObject &properties,string appId)
+void TDAnalytics::userSetOnce(const TDJSONObject &properties,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->user_setOnce(properties);
 }
-void ThinkingAnalyticsAPI::user_append(const TDJSONObject &properties,string appId)
+void TDAnalytics::userAppend(const TDJSONObject &properties,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->user_append(properties);
 }
-void ThinkingAnalyticsAPI::user_uniqAppend(const TDJSONObject &properties,string appid)
+void TDAnalytics::userUniqAppend(const TDJSONObject &properties,string appid)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appid)];
     if (obj == NULL) {return;}
     obj->user_uniqAppend(properties);
 }
-void ThinkingAnalyticsAPI::user_add(const TDJSONObject &properties,string appId)
+void TDAnalytics::userAdd(const TDJSONObject &properties,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->user_add(properties);
 }
-void ThinkingAnalyticsAPI::user_delete(string appId)
+void TDAnalytics::userDelete(string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->user_delete();
 }
-void ThinkingAnalyticsAPI::user_unset(string propertyName,string appId)
+void TDAnalytics::userUnset(string propertyName,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->user_unset(propertyName);
 }
-void ThinkingAnalyticsAPI::enableAutoTrack(string appId)
+void TDAnalytics::enableAutoTrack(string appId)
 {
     printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support enableAutoTrack on this platform \n");
 }
-void ThinkingAnalyticsAPI::enableAutoTrack(const TDJSONObject &properties, TAAutoTrackType eventType, string appId)
+void TDAnalytics::enableAutoTrack(const TDJSONObject &properties, TDAutoTrackEventType eventType, string appId)
 {
     printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support enableAutoTrack on this platform \n");
 }
-void ThinkingAnalyticsAPI::flush(string appId)
+void TDAnalytics::flush(string appId)
 {
     printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support flush on this platform \n");
 }
-string ThinkingAnalyticsAPI::getDeviceId()
+string TDAnalytics::getDeviceId()
 {
     return mapInstances[defaultInstanceAppid]->getDeviceId();
 }
-void ThinkingAnalyticsAPI::setSuperProperties(const TDJSONObject &properties,string appId)
+void TDAnalytics::setSuperProperties(const TDJSONObject &properties,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
@@ -219,53 +219,53 @@ void ThinkingAnalyticsAPI::setSuperProperties(const TDJSONObject &properties,str
     
     obj->setSuperProperties(node);
 }
-void ThinkingAnalyticsAPI::clearSuperProperties(string appId)
+void TDAnalytics::clearSuperProperties(string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->clearSuperProperties();
 }
-void ThinkingAnalyticsAPI::unsetSuperProperty(string superPropertyName,string appId)
+void TDAnalytics::unsetSuperProperty(string superPropertyName,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->unsetSuperProperty(superPropertyName);
 }
-void ThinkingAnalyticsAPI::optOutTrackingAndDeleteUser(string appId)
+void TDAnalytics::optOutTrackingAndDeleteUser(string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->optOutTrackingAndDeleteUser();
 }
-void ThinkingAnalyticsAPI::optOutTracking(string appId)
+void TDAnalytics::optOutTracking(string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->optOutTracking();
 }
-void ThinkingAnalyticsAPI::optInTracking(string appId)
+void TDAnalytics::optInTracking(string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->optInTracking();
 }
-void ThinkingAnalyticsAPI::enableTracking(bool enabled,string appId)
+void TDAnalytics::enableTracking(bool enabled,string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return;}
     obj->enableTracking(enabled);
 }
-void ThinkingAnalyticsAPI::enableTrackLog(bool enabled)
+void TDAnalytics::enableTrackLog(bool enabled)
 {
     showLog = enabled;
 }
-string ThinkingAnalyticsAPI::getDistinctId(string appId)
+string TDAnalytics::getDistinctId(string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {return "";}
     return obj->getDistinctId();
 }
-PresetProperties* ThinkingAnalyticsAPI::getPresetProperties(string appId)
+TDPresetProperties* TDAnalytics::getPresetProperties(string appId)
 {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     cocos2d::Application* app = cocos2d::Application::getInstance();
@@ -274,7 +274,7 @@ PresetProperties* ThinkingAnalyticsAPI::getPresetProperties(string appId)
     string platformString = platform==cocos2d::Application::Platform::OS_MAC ? "Mac":"Windows";
     string system_language = app->getCurrentLanguageCode();
     
-    PresetProperties *presetProperties = new PresetProperties();
+    TDPresetProperties *presetProperties = new TDPresetProperties();
     presetProperties->deviceId = getDeviceId();
     presetProperties->os = platformString;
     presetProperties->appVersion = get_version;
@@ -287,71 +287,71 @@ PresetProperties* ThinkingAnalyticsAPI::getPresetProperties(string appId)
     
     return presetProperties;
 }
-void ThinkingAnalyticsAPI::calibrateTime(long long timestamp) {
+void TDAnalytics::calibrateTime(long long timestamp) {
     printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support calibrateTime on this platform \n");
 }
-void ThinkingAnalyticsAPI::calibrateTimeWithNtp(string ntpServer) {
+void TDAnalytics::calibrateTimeWithNtp(string ntpServer) {
     printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support calibrateTimeWithNtp on this platform \n");
 }
-string ThinkingAnalyticsAPI::getLocalRegion() {
+string TDAnalytics::getLocalRegion() {
     printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support getLocalRegion on this platform \n");
     return "";
 }
-void ThinkingAnalyticsAPI::enableThirdPartySharing(TAThirdPartyType type, string appId)
+void TDAnalytics::enableThirdPartySharing(TDThirdPartyType type, string appId)
 {
     printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support enableThirdPartySharing on this platform \n");
 }
 
-void ThinkingAnalyticsAPI::enableThirdPartySharing(TAThirdPartyType type, const TDJSONObject &properties, string appId)
+void TDAnalytics::enableThirdPartySharing(TDThirdPartyType type, const TDJSONObject &properties, string appId)
 {
     printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support enableThirdPartySharing on this platform \n");
 }
 
-void ThinkingAnalyticsAPI::setTrackStatus(TATrackType status, string appId)
+void TDAnalytics::setTrackStatus(TDTrackStatus status, string appId)
 {
-    if (status==TATrackTypePause)
+    if (status==TDTrackStatusPause)
     {
-        ThinkingAnalyticsAPI::optOutTracking(appId);
+        TDAnalytics::optOutTracking(appId);
     }
-    else if (status==TATrackTypeStop)
+    else if (status==TDTrackStatusStop)
     {
-        ThinkingAnalyticsAPI::optOutTrackingAndDeleteUser(appId);
+        TDAnalytics::optOutTrackingAndDeleteUser(appId);
     }
-    else if (status==TATrackTypeSaveOnly)
+    else if (status==TDTrackStatusSaveOnly)
     {
-        ThinkingAnalyticsAPI::setTrackStatus(TATrackTypeNormal, appId);
+        TDAnalytics::setTrackStatus(TDTrackStatusNormal, appId);
     }
     else
     {
-        ThinkingAnalyticsAPI::optInTracking(appId);
-        ThinkingAnalyticsAPI::enableTracking(true, appId);
+        TDAnalytics::optInTracking(appId);
+        TDAnalytics::enableTracking(true, appId);
     }
     CCLOG("ThinkingSDK set status: %u", status);
 }
 
-TDJSONObject ThinkingAnalyticsAPI::getSuperProperties(string appId) {
+TDJSONObject TDAnalytics::getSuperProperties(string appId) {
     ThinkingSDKObject *obj = mapInstances[currentAppId(appId)];
     if (obj == NULL) {
         return TDJSONObject();
     }
     return obj->m_superProperties;
 }
-string ThinkingAnalyticsAPI::currentAppId(string appId) {
+string TDAnalytics::currentAppId(string appId) {
     if (appId == "") {
         return defaultInstanceAppid;
     }
     return appId;
 }
 
-void ThinkingAnalyticsAPI::setDynamicSuperProperties(GetDynamicSuperProperties getDynamicSuperProperties, string appId) {
+void TDAnalytics::setDynamicSuperProperties(GetDynamicSuperProperties getDynamicSuperProperties, string appId) {
     if (currentAppId(appId) == "") {return;}
     mapDyldProperties[currentAppId(appId)] = getDynamicSuperProperties;
 }
-string ThinkingAnalyticsAPI::createLightInstance(string appId) {
+string TDAnalytics::createLightInstance(string appId) {
     printf("[ThinkingEngine] Info: ThinkingAnalytics SDK does not support createLightInstance on this platform \n");
     return "";
 }
-void ThinkingAnalyticsAPI::init(Config config) {
+void TDAnalytics::init(TDConfig config) {
     string appid = config.getAppId();
     string server = config.getServer();
     ThinkingSDKObject *obj = mapInstances[appid];
@@ -412,9 +412,9 @@ void ThinkingAnalyticsAPI::init(Config config) {
     }
 }
 
-void ThinkingAnalyticsAPI::init(string appId, string server) {
-    Config config(appId, server);
-    ThinkingAnalyticsAPI::init(config);
+void TDAnalytics::init(string appId, string server) {
+    TDConfig config(appId, server);
+    TDAnalytics::init(config);
 }
 
 ThinkingSDKObject::ThinkingSDKObject()
@@ -448,13 +448,13 @@ void ThinkingSDKObject::track(string eventName) {
 void ThinkingSDKObject::track(string eventName,const TDJSONObject& node) {
     flush(eventName, node);
 }
-void ThinkingSDKObject::trackFirst(TDFirstEvent *event) {
+void ThinkingSDKObject::trackFirst(TDFirstEventModel *event) {
     flush(*event);
 }
-void ThinkingSDKObject::trackUpdate(TDUpdatableEvent *event) {
+void ThinkingSDKObject::trackUpdate(TDUpdatableEventModel *event) {
     flush(*event);
 }
-void ThinkingSDKObject::trackOverWrite(TDOverWritableEvent *event) {
+void ThinkingSDKObject::trackOverWrite(TDOverwritableEventModel *event) {
     flush(*event);
 }
 
@@ -467,19 +467,19 @@ void ThinkingSDKObject::logout() {
     setAccountId(m_accountId);
 }
 
-void ThinkingSDKObject::user_set(const thinkingdata::TDJSONObject &properties) {
+void ThinkingSDKObject::user_set(const TDJSONObject &properties) {
     flushUser(TD_EVENT_TYPE_USER_SET, properties);
 }
-void ThinkingSDKObject::user_setOnce(const thinkingdata::TDJSONObject &properties) {
+void ThinkingSDKObject::user_setOnce(const TDJSONObject &properties) {
     flushUser(TD_EVENT_TYPE_USER_SETONCE, properties);
 }
-void ThinkingSDKObject::user_append(const thinkingdata::TDJSONObject &properties) {
+void ThinkingSDKObject::user_append(const TDJSONObject &properties) {
     flushUser(TD_EVENT_TYPE_USER_APPEND, properties);
 }
-void ThinkingSDKObject::user_uniqAppend(const thinkingdata::TDJSONObject &properties) {
+void ThinkingSDKObject::user_uniqAppend(const TDJSONObject &properties) {
     flushUser(TD_EVENT_TYPE_USER_UNIQ_APPEND, properties);
 }
-void ThinkingSDKObject::user_add(const thinkingdata::TDJSONObject &properties) {
+void ThinkingSDKObject::user_add(const TDJSONObject &properties) {
     flushUser(TD_EVENT_TYPE_USER_ADD, properties);
 }
 void ThinkingSDKObject::user_delete() {
@@ -508,7 +508,7 @@ void ThinkingSDKObject::unsetSuperProperty(string superPropertyName) {
         setSuperProperties(node);
     }
 }
-void ThinkingSDKObject::setSuperProperties(const thinkingdata::TDJSONObject &properties)
+void ThinkingSDKObject::setSuperProperties(const TDJSONObject &properties)
 {
     this->m_superProperties = properties;
     saveNode(properties);
@@ -680,7 +680,7 @@ void ThinkingSDKObject::flush(string eventName, const TDJSONObject &properties)
     flush(eventName, TD_EVENT_TYPE, properties, "", "");
 }
 
-void ThinkingSDKObject::flush(const ThinkingAnalyticsEvent &event)
+void ThinkingSDKObject::flush(const TDEventModel &event)
 {
     TDJSONObject node;
     if (event.mType == FIRST) {
@@ -781,7 +781,7 @@ void ThinkingSDKObject::flush(string eventName, string eventType, const TDJSONOb
 
     if (isTrackEvent) {
 
-        TDJSONObject *presetJson = ThinkingAnalyticsAPI::getPresetProperties(m_appid)->toEventPresetProperties();
+        TDJSONObject *presetJson = TDAnalytics::getPresetProperties(m_appid)->toEventPresetProperties();
         propertyDic.mergeFrom(*presetJson);
 
         propertyDic.mergeFrom(m_superProperties);

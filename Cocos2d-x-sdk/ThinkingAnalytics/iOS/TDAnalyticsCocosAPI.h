@@ -6,21 +6,20 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <ThinkingSDK/TDConfig.h>
-#import <ThinkingSDK/TDPresetProperties.h>
 
 @class ThinkingAnalyticsSDK;
 NS_ASSUME_NONNULL_BEGIN
-@interface ThinkingAnalyticsCocosAPI : NSObject
+typedef NSDictionary<NSString *, id> * _Nullable (^GetDynamicSuperPropertiesIOS)(NSString *appId);
+@interface TDAnalyticsCocosAPI : NSObject
 + (ThinkingAnalyticsSDK *)sharedInstance:(NSString *)appid server:(NSString *)server;
-+ (ThinkingAnalyticsSDK *)sharedInstance:(TDConfig *)config;
++ (ThinkingAnalyticsSDK *)sharedInstance:(NSDictionary *)config;
 + (void)track:(NSString *)eventName appid:(NSString *)appid;
 + (void)track:(NSString *)eventName properties:(nullable NSDictionary *)properties appid:(NSString *)appid;
 + (void)track:(NSString *)eventName properties:(nullable NSDictionary *)properties extraId:(NSString *)extraId type:(int)type appid:(NSString *)appid;
 + (void)timeEvent:(NSString *)eventName appid:(NSString *)appid;
 + (void)login:(NSString *)accountID appid:(NSString *)appid;
 + (void)logout:(NSString *)appid;
-+ (void)identify:(NSString *)distinctId appid:(NSString *)appid;
++ (void)setDistinctId:(NSString *)distinctId appid:(NSString *)appid;
 + (NSString *)getDistinctId:(NSString *)appid;
 + (void)user_set:(NSDictionary *)userProperties appid:(NSString *)appid;
 + (void)user_setOnce:(NSDictionary *)userProperties appid:(NSString *)appid;
@@ -43,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)optInTracking:(NSString *)appid;
 + (NSString*)createLightInstance:(NSString *)appid;
 
-+ (TDPresetProperties*)getPresetProperties:(NSString *)appid;
++ (NSDictionary *)getPresetProperties:(NSString *)appid;
 + (void)calibrateTimeWithNtp:(NSString *)ntpServer;
 + (void)calibrateTime:(long)timestamp;
 + (void)enableTrackLog:(BOOL)enableLog;
@@ -54,6 +53,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)enableThirdPartySharing:(int)type customMap:(NSDictionary *)properties appid:(NSString *)appId;
 + (void)setTrackStatus:(int)status appid:(NSString *)appId;
+
++ (void)setDynamicSuperProperties:(GetDynamicSuperPropertiesIOS)dynamicSuperProperties appid:(NSString *)appId;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -1,14 +1,14 @@
-#include "../Common/ThinkingAnalyticsAPI.h"
+#include "../Common/TDAnalytics.h"
 #include <stdio.h>
 #include <string>
 #include <map>
 #include <vector>
 #include "cocos2d.h"
+#include "cn_thinkingdata_android_TDAnalyticsCocosAPI.h"
 
-
-using namespace thinkingdata;
+using namespace thinkingdata::analytics;
 USING_NS_CC;
-#define THINKING_JAVA_CLASS "cn/thinkingdata/android/ThinkingAnalyticsCocosAPI"
+#define THINKING_JAVA_CLASS "cn/thinkingdata/android/TDAnalyticsCocosAPI"
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 extern "C"{
@@ -84,7 +84,6 @@ static TDJSONObject TDJSONObjectFromJSONObject(JNIEnv *env,jobject object)
             int  i = 0;
             jmethodID  _getString = env->GetMethodID(_jsonArrayClass,"getString","(I)Ljava/lang/String;");
             jmethodID  _getoptobj = env->GetMethodID(_jsonArrayClass,"optJSONObject","(I)Lorg/json/JSONObject;");
-            jmethodID  _getobj = env->GetMethodID(_jsonArrayClass,"getJSONObject","(I)Lorg/json/JSONObject;");
 
             for(;i<env->CallIntMethod(_value,_size);i++)
             {
@@ -133,7 +132,7 @@ static void releaseMethod(JniMethodInfo &method)
 }
 
 
-static jobject createJavaJsonObject(JNIEnv *env, const thinkingdata::TDJSONObject *properties) {
+static jobject createJavaJsonObject(JNIEnv *env, const TDJSONObject *properties) {
     jclass classJSONObject = env->FindClass("org/json/JSONObject");
     jmethodID constructMethod = env->GetMethodID(classJSONObject,
                                                  "<init>",
@@ -146,12 +145,12 @@ static jobject createJavaJsonObject(JNIEnv *env, const thinkingdata::TDJSONObjec
 }
 
 
-TDJSONObject getDynamicProperties(string appId)
+static TDJSONObject getDynamicProperties(string appId)
 {
     TDJSONObject jsonObject;
     if(!dynamicPropertiesMap.empty())
     {
-        string currentAppId = ThinkingAnalyticsAPI::currentAppId(appId);
+        string currentAppId = TDAnalytics::currentAppId(appId);
         int count = dynamicPropertiesMap.count(currentAppId);
         if(count > 0)
         {
@@ -162,8 +161,25 @@ TDJSONObject getDynamicProperties(string appId)
     return jsonObject;
 }
 
+static string getDynamicPropertiesJson(string appId) {
+    TDJSONObject jsonObject = getDynamicProperties(appId);
+    string js = TDJSONObject::toJson(jsonObject);
+    return js;
+}
 
-static void trackEvent(ThinkingAnalyticsEvent* event,int type,string appId)
+/*
+ * Class:     cn_thinkingdata_android_TDAnalyticsCocosAPI
+ * Method:    getDynamicPropertiesJson
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_cn_thinkingdata_android_TDAnalyticsCocosAPI_getDynamicPropertiesJson
+        (JNIEnv *env, jclass, jstring appId) {
+    string _appId = jStringToString(env,appId);
+    string json = getDynamicPropertiesJson(_appId);
+    return env->NewStringUTF(json.c_str());
+}
+
+static void trackEvent(TDEventModel* event,int type,string appId)
 {
 
     TDJSONObject dynamicProperties = getDynamicProperties(appId);
@@ -195,7 +211,7 @@ static void trackEvent(ThinkingAnalyticsEvent* event,int type,string appId)
 }
 }
 
-void ThinkingAnalyticsAPI::track(string eventName,string appId)
+void TDAnalytics::track(string eventName,string appId)
 {
     TDJSONObject dynamicProperties = getDynamicProperties(appId);
     JniMethodInfo methodInfo;
@@ -210,7 +226,7 @@ void ThinkingAnalyticsAPI::track(string eventName,string appId)
         releaseMethod(methodInfo);
     }
 }
-void ThinkingAnalyticsAPI::track(string eventName,const TDJSONObject& node,string appId)
+void TDAnalytics::track(string eventName,const TDJSONObject& node,string appId)
 {
     TDJSONObject dynamicProperties = getDynamicProperties(appId);
     dynamicProperties.mergeFrom(node);
@@ -228,21 +244,21 @@ void ThinkingAnalyticsAPI::track(string eventName,const TDJSONObject& node,strin
     }
 }
 
-void ThinkingAnalyticsAPI::track(TDFirstEvent* firstEvent,string appId) {
+void TDAnalytics::track(TDFirstEventModel* firstEvent,string appId) {
 
     trackEvent(firstEvent,1,appId);
 
 }
-void ThinkingAnalyticsAPI::track(TDUpdatableEvent* updatableEvent,string appId)
+void TDAnalytics::track(TDUpdatableEventModel* updatableEvent,string appId)
 {
     trackEvent(updatableEvent,2,appId);
 
 }
-void ThinkingAnalyticsAPI::track(TDOverWritableEvent* overWritableEvent,string appId) {
+void TDAnalytics::track(TDOverwritableEventModel* overWritableEvent,string appId) {
     trackEvent(overWritableEvent,3,appId);
 }
 
-void ThinkingAnalyticsAPI::timeEvent(string eventName,string appId)
+void TDAnalytics::timeEvent(string eventName,string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"timeEvent","(Ljava/lang/String;Ljava/lang/String;)V"))
@@ -262,7 +278,7 @@ void ThinkingAnalyticsAPI::timeEvent(string eventName,string appId)
 
 
 
-void ThinkingAnalyticsAPI::login(string accountID,string appId)
+void TDAnalytics::login(string accountID,string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"login","(Ljava/lang/String;Ljava/lang/String;)V"))
@@ -276,7 +292,7 @@ void ThinkingAnalyticsAPI::login(string accountID,string appId)
     }
 }
 
-void ThinkingAnalyticsAPI::logout(string appId)
+void TDAnalytics::logout(string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"logout","(Ljava/lang/String;)V"))
@@ -287,10 +303,10 @@ void ThinkingAnalyticsAPI::logout(string appId)
         releaseMethod(methodInfo);
     }
 }
-void ThinkingAnalyticsAPI::identify(string distinctId,string appId)
+void TDAnalytics::setDistinctId(string distinctId,string appId)
 {
     JniMethodInfo methodInfo;
-    if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"identify","(Ljava/lang/String;Ljava/lang/String;)V"))
+    if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"setDistinctId","(Ljava/lang/String;Ljava/lang/String;)V"))
     {
         jstring distinct = methodInfo.env->NewStringUTF(distinctId.c_str());
         jstring jAppId = methodInfo.env->NewStringUTF(appId.c_str());
@@ -301,7 +317,7 @@ void ThinkingAnalyticsAPI::identify(string distinctId,string appId)
     }
 }
 
-void ThinkingAnalyticsAPI::user_set(const TDJSONObject &properties,string appId)
+void TDAnalytics::userSet(const TDJSONObject &properties,string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"user_set","(Lorg/json/JSONObject;Ljava/lang/String;)V"))
@@ -314,7 +330,7 @@ void ThinkingAnalyticsAPI::user_set(const TDJSONObject &properties,string appId)
         releaseMethod(methodInfo);
     }
 }
-void ThinkingAnalyticsAPI::user_setOnce(const TDJSONObject &properties,string appId)
+void TDAnalytics::userSetOnce(const TDJSONObject &properties,string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"user_setOnce","(Lorg/json/JSONObject;Ljava/lang/String;)V"))
@@ -327,7 +343,7 @@ void ThinkingAnalyticsAPI::user_setOnce(const TDJSONObject &properties,string ap
         releaseMethod(methodInfo);
     }
 }
-void ThinkingAnalyticsAPI::user_append(const TDJSONObject &properties,string appId)
+void TDAnalytics::userAppend(const TDJSONObject &properties,string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"user_append","(Lorg/json/JSONObject;Ljava/lang/String;)V"))
@@ -340,7 +356,7 @@ void ThinkingAnalyticsAPI::user_append(const TDJSONObject &properties,string app
         releaseMethod(methodInfo);
     }
 }
-void ThinkingAnalyticsAPI::user_uniqAppend(const TDJSONObject &properties,string appId)
+void TDAnalytics::userUniqAppend(const TDJSONObject &properties,string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"user_uniqAppend","(Lorg/json/JSONObject;Ljava/lang/String;)V"))
@@ -354,7 +370,7 @@ void ThinkingAnalyticsAPI::user_uniqAppend(const TDJSONObject &properties,string
     }
 }
 
-void ThinkingAnalyticsAPI::user_add(const TDJSONObject &properties,string appId)
+void TDAnalytics::userAdd(const TDJSONObject &properties,string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"user_add","(Lorg/json/JSONObject;Ljava/lang/String;)V"))
@@ -367,7 +383,7 @@ void ThinkingAnalyticsAPI::user_add(const TDJSONObject &properties,string appId)
         releaseMethod(methodInfo);
     }
 }
-void ThinkingAnalyticsAPI::user_delete(string appId)
+void TDAnalytics::userDelete(string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"user_delete","(Ljava/lang/String;)V"))
@@ -378,7 +394,7 @@ void ThinkingAnalyticsAPI::user_delete(string appId)
         releaseMethod(methodInfo);
     }
 }
-void ThinkingAnalyticsAPI::user_unset(string propertyName,string appId)
+void TDAnalytics::userUnset(string propertyName,string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"user_unset","(Ljava/lang/String;Ljava/lang/String;)V"))
@@ -393,7 +409,7 @@ void ThinkingAnalyticsAPI::user_unset(string propertyName,string appId)
 }
 
 
-void ThinkingAnalyticsAPI::enableAutoTrack(string appId)
+void TDAnalytics::enableAutoTrack(string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"enableAutoTrack","(Ljava/lang/String;)V"))
@@ -405,7 +421,7 @@ void ThinkingAnalyticsAPI::enableAutoTrack(string appId)
     }
 }
 
-void ThinkingAnalyticsAPI::enableAutoTrack(const TDJSONObject &properties, TAAutoTrackType eventType, string appid)
+void TDAnalytics::enableAutoTrack(const TDJSONObject &properties, TDAutoTrackEventType eventType, string appid)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"enableAutoTrack","(Ljava/lang/String;ILorg/json/JSONObject;)V"))
@@ -418,7 +434,7 @@ void ThinkingAnalyticsAPI::enableAutoTrack(const TDJSONObject &properties, TAAut
     }
 }
 
-void ThinkingAnalyticsAPI::setSuperProperties(const TDJSONObject &properties,string appId)
+void TDAnalytics::setSuperProperties(const TDJSONObject &properties,string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"setSuperProperties","(Lorg/json/JSONObject;Ljava/lang/String;)V"))
@@ -431,7 +447,7 @@ void ThinkingAnalyticsAPI::setSuperProperties(const TDJSONObject &properties,str
         releaseMethod(methodInfo);
     }
 }
-void ThinkingAnalyticsAPI::clearSuperProperties(string appId)
+void TDAnalytics::clearSuperProperties(string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"clearSuperProperties","(Ljava/lang/String;)V"))
@@ -442,7 +458,7 @@ void ThinkingAnalyticsAPI::clearSuperProperties(string appId)
         releaseMethod(methodInfo);
     }
 }
-void ThinkingAnalyticsAPI::unsetSuperProperty(string superPropertyName,string appId)
+void TDAnalytics::unsetSuperProperty(string superPropertyName,string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"unsetSuperProperty","(Ljava/lang/String;Ljava/lang/String;)V"))
@@ -456,7 +472,7 @@ void ThinkingAnalyticsAPI::unsetSuperProperty(string superPropertyName,string ap
     }
 }
 
-void ThinkingAnalyticsAPI::flush(string appId)
+void TDAnalytics::flush(string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"flush","(Ljava/lang/String;)V"))
@@ -467,7 +483,7 @@ void ThinkingAnalyticsAPI::flush(string appId)
         releaseMethod(methodInfo);
     }
 }
-void ThinkingAnalyticsAPI::optOutTrackingAndDeleteUser(string appId)
+void TDAnalytics::optOutTrackingAndDeleteUser(string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"optOutTrackingAndDeleteUser","(Ljava/lang/String;)V"))
@@ -478,7 +494,7 @@ void ThinkingAnalyticsAPI::optOutTrackingAndDeleteUser(string appId)
         releaseMethod(methodInfo);
     }
 }
-void ThinkingAnalyticsAPI::optOutTracking(string appId)
+void TDAnalytics::optOutTracking(string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"optOutTracking","(Ljava/lang/String;)V"))
@@ -489,7 +505,7 @@ void ThinkingAnalyticsAPI::optOutTracking(string appId)
         releaseMethod(methodInfo);
     }
 }
-void ThinkingAnalyticsAPI::optInTracking(string appId)
+void TDAnalytics::optInTracking(string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"optInTracking","(Ljava/lang/String;)V"))
@@ -500,7 +516,7 @@ void ThinkingAnalyticsAPI::optInTracking(string appId)
         releaseMethod(methodInfo);
     }
 }
-void ThinkingAnalyticsAPI::enableTracking(bool enabled,string appId)
+void TDAnalytics::enableTracking(bool enabled,string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"enableTracking","(ZLjava/lang/String;)V"))
@@ -511,7 +527,7 @@ void ThinkingAnalyticsAPI::enableTracking(bool enabled,string appId)
         releaseMethod(methodInfo);
     }
 }
-void ThinkingAnalyticsAPI::enableTrackLog(bool enabled)
+void TDAnalytics::enableTrackLog(bool enabled)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"enableTrackLog","(Z)V"))
@@ -521,11 +537,11 @@ void ThinkingAnalyticsAPI::enableTrackLog(bool enabled)
     }
 }
 
-string ThinkingAnalyticsAPI::getDeviceId()
+string TDAnalytics::getDeviceId()
 {
     string deviceID;
     JniMethodInfo methodInfo;
-    if(cocos2d::JniHelper::getStaticMethodInfo(methodInfo,"cn/thinkingdata/android/ThinkingAnalyticsCocosAPI","getDeviceId","()Ljava/lang/String;"))
+    if(cocos2d::JniHelper::getStaticMethodInfo(methodInfo,"cn/thinkingdata/android/TDAnalyticsCocosAPI","getDeviceId","()Ljava/lang/String;"))
     {
         jstring result = (jstring)methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID);
         deviceID = jStringToString(methodInfo.env,result);
@@ -534,7 +550,7 @@ string ThinkingAnalyticsAPI::getDeviceId()
     }
     return deviceID;
 }
-string ThinkingAnalyticsAPI::getDistinctId(string appId)
+string TDAnalytics::getDistinctId(string appId)
 {
     string distinctID;
     JniMethodInfo methodInfo;
@@ -549,9 +565,9 @@ string ThinkingAnalyticsAPI::getDistinctId(string appId)
     }
     return distinctID;
 }
-PresetProperties* ThinkingAnalyticsAPI::getPresetProperties(string appId)
+TDPresetProperties* TDAnalytics::getPresetProperties(string appId)
 {
-    PresetProperties *presetProperties = new PresetProperties();
+    TDPresetProperties *presetProperties = new TDPresetProperties();
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"getPresetProperties","(Ljava/lang/String;)Lcn/thinkingdata/android/TDPresetProperties;"))
     {
@@ -637,7 +653,7 @@ PresetProperties* ThinkingAnalyticsAPI::getPresetProperties(string appId)
     }
     return presetProperties;
 }
-void ThinkingAnalyticsAPI::calibrateTime(long long timestamp) {
+void TDAnalytics::calibrateTime(long long timestamp) {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"calibrateTime","(J)V"))
     {
@@ -646,7 +662,7 @@ void ThinkingAnalyticsAPI::calibrateTime(long long timestamp) {
     }
 }
 
-void ThinkingAnalyticsAPI::calibrateTimeWithNtp(string ntpServer) {
+void TDAnalytics::calibrateTimeWithNtp(string ntpServer) {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"calibrateTimeWithNtp","(Ljava/lang/String;)V"))
     {
@@ -658,7 +674,7 @@ void ThinkingAnalyticsAPI::calibrateTimeWithNtp(string ntpServer) {
 }
 
 
-TDJSONObject ThinkingAnalyticsAPI::getSuperProperties(string appId) {
+TDJSONObject TDAnalytics::getSuperProperties(string appId) {
     TDJSONObject jsonObject;
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"getSuperProperties","(Ljava/lang/String;)Lorg/json/JSONObject;"))
@@ -672,7 +688,7 @@ TDJSONObject ThinkingAnalyticsAPI::getSuperProperties(string appId) {
     return jsonObject;
 }
 
-string ThinkingAnalyticsAPI::currentAppId(string appId) {
+string TDAnalytics::currentAppId(string appId) {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"currentToken","(Ljava/lang/String;)Ljava/lang/String;"))
     {
@@ -686,16 +702,25 @@ string ThinkingAnalyticsAPI::currentAppId(string appId) {
     return "";
 }
 
-void ThinkingAnalyticsAPI::setDynamicSuperProperties(GetDynamicSuperProperties getDynamicSuperProperties, string appId) {
+void TDAnalytics::setDynamicSuperProperties(GetDynamicSuperProperties getDynamicSuperProperties, string appId) {
 
-    if(ThinkingAnalyticsAPI::currentAppId(appId).size() != 0)
+    if(TDAnalytics::currentAppId(appId).size() != 0)
     {
-        string currentAppId = ThinkingAnalyticsAPI::currentAppId(appId);
+        string currentAppId = TDAnalytics::currentAppId(appId);
         dynamicPropertiesMap[currentAppId] = getDynamicSuperProperties;
+
+        JniMethodInfo methodInfo;
+        if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"setDynamicSuperProperties","(Ljava/lang/String;)V"))
+        {
+            jstring jAppId = methodInfo.env->NewStringUTF(appId.c_str());
+            methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID,jAppId);
+            methodInfo.env->DeleteLocalRef(jAppId);
+            releaseMethod(methodInfo);
+        }
     }
 
 }
-string ThinkingAnalyticsAPI::createLightInstance(string appId) {
+string TDAnalytics::createLightInstance(string appId) {
     string lightToken = "";
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"createLightInstance","(Ljava/lang/String;)Ljava/lang/String;"))
@@ -710,7 +735,7 @@ string ThinkingAnalyticsAPI::createLightInstance(string appId) {
     return lightToken;
 }
 
-void ThinkingAnalyticsAPI::init(Config config) {
+void TDAnalytics::init(TDConfig config) {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"setCustomerLibInfo","(Ljava/lang/String;Ljava/lang/String;)V"))
     {
@@ -771,30 +796,29 @@ void ThinkingAnalyticsAPI::init(Config config) {
     releaseMethod(methodInfo1);
 }
 
-void ThinkingAnalyticsAPI::init(string appId, string server) {
-    Config config = Config(appId,server);
+void TDAnalytics::init(string appId, string server) {
+    TDConfig config = TDConfig(appId,server);
     init(config);
 }
 
-void ThinkingAnalyticsAPI::setTrackStatus(TATrackType status,string appid)
+void TDAnalytics::setTrackStatus(TDTrackStatus status,string appid)
 {
-    int sss = (int)status;
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"setTrackStatus","(ILjava/lang/String;)V"))
     {
         jstring jAppId = methodInfo.env->NewStringUTF(appid.c_str());
-        methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID,status,jAppId);
+        methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID, (int)status,jAppId);
         methodInfo.env->DeleteLocalRef(jAppId);
         releaseMethod(methodInfo);
     }
 }
 
-void ThinkingAnalyticsAPI::enableThirdPartySharing(TAThirdPartyType type, string appId)
+void TDAnalytics::enableThirdPartySharing(TDThirdPartyType type, string appId)
 {
-    ThinkingAnalyticsAPI::enableThirdPartySharing(type, TDJSONObject(), appId);
+    TDAnalytics::enableThirdPartySharing(type, TDJSONObject(), appId);
 }
 
-void ThinkingAnalyticsAPI::enableThirdPartySharing(TAThirdPartyType type, const TDJSONObject &properties, string appId)
+void TDAnalytics::enableThirdPartySharing(TDThirdPartyType type, const TDJSONObject &properties, string appId)
 {
     JniMethodInfo methodInfo;
     if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"enableThirdPartySharing","(Lorg/json/JSONObject;ILjava/lang/String;)V"))

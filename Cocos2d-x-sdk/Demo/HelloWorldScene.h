@@ -26,6 +26,10 @@
 #define __HELLOWORLD_SCENE_H__
 
 #include "cocos2d.h"
+#include "editor-support/spine/Json.h"
+#include "./ThinkingAnalytics/Common/TDAnalytics.h"
+using namespace thinkingdata::analytics;
+
 
 class HelloWorld : public cocos2d::Scene
 {
@@ -36,6 +40,11 @@ public:
     
     // a selector callback
     void menuCloseCallback(cocos2d::Ref* pSender);
+
+    TDJSONObject parseJson(Json *json);
+    
+    void initUIElement(cocos2d::Size visibleSize, cocos2d::Vec2 origin);
+
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);
 };

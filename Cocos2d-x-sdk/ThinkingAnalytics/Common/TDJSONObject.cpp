@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iostream>
 
-using namespace thinkingdata;
+using namespace thinkingdata::analytics;
 
 void TDJSONObject::removeKey(const char *propertyName)
 {
@@ -254,30 +254,30 @@ void TDJSONObject::mergeFrom(const TDJSONObject &anotherNode) {
     }
 }
 
-ThinkingAnalyticsEvent::ThinkingAnalyticsEvent(string eventName, TDJSONObject properties) {
+TDEventModel::TDEventModel(string eventName, TDJSONObject properties) {
     this->mEventName = eventName;
     this->mProperties = properties;
 }
 
-TDFirstEvent::TDFirstEvent(string eventName, TDJSONObject properties):ThinkingAnalyticsEvent(eventName,properties) {
+TDFirstEventModel::TDFirstEventModel(string eventName, TDJSONObject properties):TDEventModel(eventName,properties) {
     this->mType = FIRST;
     this->mExtraId = "";
 }
 
-void TDFirstEvent::setFirstCheckId(string firstCheckId) {
+void TDFirstEventModel::setFirstCheckId(string firstCheckId) {
     this->mExtraId = firstCheckId;
 }
-TDUpdatableEvent::TDUpdatableEvent(string eventName, TDJSONObject properties, string eventId):ThinkingAnalyticsEvent(eventName,properties) {
+TDUpdatableEventModel::TDUpdatableEventModel(string eventName, TDJSONObject properties, string eventId):TDEventModel(eventName,properties) {
     this->mExtraId = eventId;
     this->mType = UPDATABLE;
 }
-TDOverWritableEvent::TDOverWritableEvent(string eventName, TDJSONObject properties, string eventId):ThinkingAnalyticsEvent(eventName,properties) {
+TDOverwritableEventModel::TDOverwritableEventModel(string eventName, TDJSONObject properties, string eventId):TDEventModel(eventName,properties) {
     this->mExtraId = eventId;
     this->mType = OVERWRITABLE;
 }
 
 //PresetPropewrties
-TDJSONObject* PresetProperties::toEventPresetProperties()
+TDJSONObject* TDPresetProperties::toEventPresetProperties()
 {
 
 // windows
@@ -360,83 +360,85 @@ TDJSONObject* PresetProperties::toEventPresetProperties()
 }
 
 // Secret
-SecretKey::SecretKey(int version, string publicKey)
+TDSecretKey::TDSecretKey(int version, string publicKey)
 {
     this->version = version;
     this->publicKey = publicKey;
 }
 
-SecretKey::~SecretKey()
+TDSecretKey::~TDSecretKey()
 {
    
 }
 
-//Config
-Config::Config(string appId,string server)
+//TDConfig
+TDConfig::TDConfig(string appId,string server)
 {
     this->appId = appId;
     this->server = server;
     this->model = TD_NORMAL;
-    this->pinningMode = TASSLPinningNone;
+    this->pinningMode = TDSSLPinningModeNone;
     this->name =  appId;
+    this->enableEncrypt = false;
 }
 
-void Config::setEnableEncrypt(bool enable)
+void TDConfig::setEnableEncrypt(bool enable)
 {
     this->enableEncrypt = enable;
 }
-void Config::setSecretKey(SecretKey secretKey)
+void TDConfig::setSecretKey(TDSecretKey secretKey)
 {
     this->secretKey = secretKey;
 }
-bool Config::getEnableEncrypt()
+bool TDConfig::getEnableEncrypt()
 {
     return enableEncrypt;
 }
 
 
-void Config::setPinningMode(TASSLPinning pinningMode)
+void TDConfig::setPinningMode(TDSSLPinningMode pinningMode)
 {
     this->pinningMode = pinningMode;
 }
-TASSLPinning Config::getPinningMode()
+
+TDSSLPinningMode TDConfig::getPinningMode()
 {
     return  pinningMode;
 }
 
-SecretKey Config::getSecretKey()
+TDSecretKey TDConfig::getSecretKey()
 {
     return secretKey;
 }
 
-void Config::setModel(Model model)
+void TDConfig::setModel(TDMode model)
 {
     this->model = model;
 }
-void Config::setName(string name) {
+void TDConfig::setName(string name) {
     this->name = name;
 }
-string Config::getName()
+string TDConfig::getName()
 {
     return name;
 }
 
-string Config::getAppId()
+string TDConfig::getAppId()
 {
     return appId;
 }
 
-string Config::getServer()
+string TDConfig::getServer()
 {
     return server;
 }
 
-Model Config::getModel()
+TDMode TDConfig::getModel()
 {
     return  model;
 }
 
-Config::~Config()
+TDConfig::~TDConfig()
 {
    
 }

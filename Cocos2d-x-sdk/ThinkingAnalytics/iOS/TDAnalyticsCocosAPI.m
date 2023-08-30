@@ -5,14 +5,16 @@
 //  Created by Hale Wang on 2021/4/1.
 //
 
-#import "ThinkingAnalyticsCocosAPI.h"
+#import "TDAnalyticsCocosAPI.h"
 #import "ThinkingAnalyticsSDK.h"
-//#import <ThinkingSDK/TDLogging.h>
+#import <ThinkingSDK/TDConfig.h>
+#import <ThinkingSDK/TDPresetProperties.h>
+
 static ThinkingAnalyticsSDK* instance;
 
 static NSMutableDictionary* sInstances;
 static NSMutableArray*      sAppIds;
-@implementation ThinkingAnalyticsCocosAPI
+@implementation TDAnalyticsCocosAPI
 + (NSString*)currentAppId:(NSString*)appId
 {
     NSString *token = @"";
@@ -64,16 +66,49 @@ static NSMutableArray*      sAppIds;
 }
 + (ThinkingAnalyticsSDK *)sharedInstance:(NSString *)appid server:(NSString *)server
 {
-    TDConfig *config = [[TDConfig alloc] initWithAppId:appid serverUrl:server];
+    NSMutableDictionary *config = [NSMutableDictionary dictionary];
+    [config setObject:appid forKey:@"appId"];
+    [config setObject:server forKey:@"serverUrl"];
     return [self sharedInstance:config];
 }
-+ (ThinkingAnalyticsSDK *)sharedInstance:(TDConfig *)config
++ (ThinkingAnalyticsSDK *)sharedInstance:(NSDictionary *)config
 {
-    NSString* name = config.name.length == 0 ? config.appid : config.name;
+    NSString* appid = config[@"appId"];
+    NSString* server = config[@"serverUrl"];
+    TDConfig *tdConfig = [[TDConfig alloc] initWithAppId:appid serverUrl:server];
+    NSString* _mode = config[@"mode"];
+    if([_mode isEqualToString:@"debug"])
+    {
+        tdConfig.debugMode = ThinkingAnalyticsDebug;
+    }
+    else if([_mode isEqualToString:@"debugOnly"])
+    {
+        tdConfig.debugMode = ThinkingAnalyticsDebugOnly;
+    }
+    bool enableEncrypt = [config[@"enableEncrypt"] boolValue];
+    if (enableEncrypt == true) {
+        NSString* version = [config[@"version"] unsignedIntegerValue];
+        NSString* publicKey = config[@"publicKey"];
+        TDSecretKey *tdSecretKey = [[TDSecretKey alloc] initWithVersion:version
+                                                          publicKey:publicKey];
+        tdConfig.secretKey = tdSecretKey;
+        tdConfig.enableEncrypt = enableEncrypt;
+    }
+    NSInteger pinningMode = [config[@"pinningMode"] integerValue];
+    if (pinningMode != TDSSLPinningModeNone) {
+        TDSecurityPolicy *securityPolicy = [TDSecurityPolicy policyWithPinningMode:pinningMode];
+        tdConfig.securityPolicy = securityPolicy;
+        [tdConfig.securityPolicy setSessionDidReceiveAuthenticationChallenge:^NSURLSessionAuthChallengeDisposition(NSURLSession * _Nullable session, NSURLAuthenticationChallenge * _Nullable challenge, NSURLCredential * _Nullable * _Nullable credential) {
+            return NSURLSessionAuthChallengePerformDefaultHandling;
+        }];
+    }
+    tdConfig.name = config[@"name"];
+
+    NSString* name = tdConfig.name.length == 0 ? tdConfig.appid : tdConfig.name;
     ThinkingAnalyticsSDK *instance = self.instances[name];
     if(instance == nil)
     {
-        instance = [ThinkingAnalyticsSDK startWithConfig:config];
+        instance = [ThinkingAnalyticsSDK startWithConfig:tdConfig];
         [self.instances setValue:instance forKey:name];
         [self.appIds addObject:name];
     }
@@ -92,14 +127,14 @@ static NSMutableArray*      sAppIds;
         return @"";
     }
 }
-+ (TDPresetProperties *)getPresetProperties:(NSString *)appid
++ (NSDictionary *)getPresetProperties:(NSString *)appid
 {
     if([self currentInstance:appid] != nil)
     {
-        return [[self currentInstance:appid] getPresetProperties];
+        return [[[self currentInstance:appid] getPresetProperties] toEventPresetProperties];
     }else
     {
-        return [TDPresetProperties new];
+        return [NSDictionary new];
     }
 }
 
@@ -183,7 +218,7 @@ static NSMutableArray*      sAppIds;
     }
 }
 
-+ (void)identify:(NSString *)distinctId appid:(NSString *)appid
++ (void)setDistinctId:(NSString *)distinctId appid:(NSString *)appid
 {
    if([self currentInstance:appid] != nil)
    {
@@ -381,6 +416,15 @@ static NSMutableArray*      sAppIds;
     if([self currentInstance:appId] != nil)
     {
         [[self currentInstance:appId] setTrackStatus:status];
+    }
+}
+
++ (void)setDynamicSuperProperties:(GetDynamicSuperPropertiesIOS)dynamicSuperProperties appid:(NSString *)appId {
+    if([self currentInstance:appId] != nil)
+    {
+        [[self currentInstance:appId] registerDynamicSuperProperties:^NSDictionary<NSString *,id> * _Nonnull{
+            return dynamicSuperProperties(appId);
+        }];
     }
 }
 

@@ -3,7 +3,7 @@
 #include <sstream>
 #include "TDJSONObject.h"
 const string LIB_NAME = "Cocos2d-x";
-const string LIB_VERSION = "1.3.5-beta.1";
+const string LIB_VERSION = "2.0.0-beta.1";
 
 using namespace std;
 template < typename TDType >
@@ -17,29 +17,30 @@ static void addValue(vector<TDType> &list,TDType &value)
 }
 
 namespace thinkingdata {
+    namespace analytics {
     
     typedef TDJSONObject(*GetDynamicSuperProperties)();
-    typedef TDJSONObject(*GetAutoTrackCallBack)(int eventType, TDJSONObject properties);
-    static std::map<string,GetDynamicSuperProperties> dynamicPropertiesMap;
-    static std::map<string,GetAutoTrackCallBack>      autoTrackCallBackMap;
-   
+    typedef TDJSONObject(*GetAutoTrackEventProperties)(int eventType, TDJSONObject properties);
+    static std::map<string,GetDynamicSuperProperties>   dynamicPropertiesMap;
+    static std::map<string,GetAutoTrackEventProperties> autoTrackCallBackMap;
     
-    class ThinkingAnalyticsAPI {
+    
+    class TDAnalytics {
     public:
         
         static void init(string appid,string server);
         
-        static void init(Config config);
+        static void init(TDConfig config);
         
         static void track(string eventName,string appid = "");
         
         static void track(string eventName, const TDJSONObject &properties,string appid = "");
         
-        static void track(TDFirstEvent* firstEvent,string appid = "");
+        static void track(TDFirstEventModel* firstEvent,string appid = "");
         
-        static void track(TDUpdatableEvent* updatableEvent,string appid = "");
+        static void track(TDUpdatableEventModel* updatableEvent,string appid = "");
         
-        static void track(TDOverWritableEvent* overWritableEvent,string appid = "");
+        static void track(TDOverwritableEventModel* overWritableEvent,string appid = "");
         
         static void timeEvent(string eventName,string appid = "");
         
@@ -47,44 +48,44 @@ namespace thinkingdata {
         
         static void logout(string appid = "");
         
-        static void identify(string distinctId,string appid = "");
+        static void setDistinctId(string distinctId,string appid = "");
         
         static string getDistinctId(string appid = "");
         
-    
-        static  void user_set(const TDJSONObject &properties,string appid = "");
         
-        static  void user_setOnce(const TDJSONObject &properties,string appid = "");
+        static  void userSet(const TDJSONObject &properties,string appid = "");
         
-        static  void user_add(const TDJSONObject &properties,string appid = "");
+        static  void userSetOnce(const TDJSONObject &properties,string appid = "");
         
-        static  void user_append(const TDJSONObject &properties,string appid = "");
+        static  void userAdd(const TDJSONObject &properties,string appid = "");
         
-        static  void user_uniqAppend(const TDJSONObject &properties,string appid = "");
+        static  void userAppend(const TDJSONObject &properties,string appid = "");
         
-        static  void user_delete(string appid = "");
+        static  void userUniqAppend(const TDJSONObject &properties,string appid = "");
         
-        static  void user_unset(string propertyName,string appid = "");
-
-  
+        static  void userDelete(string appid = "");
+        
+        static  void userUnset(string propertyName,string appid = "");
+        
+        
         static  void setSuperProperties(const TDJSONObject &properties,string appid = "");
-       
+        
         static  TDJSONObject getSuperProperties(string appid = "");
         
         static void  clearSuperProperties(string appid = "");
-      
+        
         static void  unsetSuperProperty(string superPropertyName,string appid = "");
         
         static void  setDynamicSuperProperties(GetDynamicSuperProperties getDynamicSuperProperties,string appid = "");
         
-        static PresetProperties* getPresetProperties(string appid = "");
+        static TDPresetProperties* getPresetProperties(string appid = "");
         
         static  void enableAutoTrack(string appid = "");
         
-        static  void enableAutoTrack(const TDJSONObject &properties, TAAutoTrackType eventType = (TAAutoTrackType)15, string appid = "");
-       
+        static  void enableAutoTrack(const TDJSONObject &properties, TDAutoTrackEventType eventType = (TDAutoTrackEventType)15, string appid = "");
+        
         static  void flush(string appid = "");
-
+        
         static  string createLightInstance(string appid = "");
         
         static  void enableTracking(bool enabled,string appid = "");
@@ -92,27 +93,27 @@ namespace thinkingdata {
         static  void optOutTrackingAndDeleteUser(string appid = "");
         
         static  void optOutTracking(string appid = "");
-       
+        
         static  void optInTracking(string appid = "");
-
-        static  void setTrackStatus(TATrackType status,string appid = "");
-      
+        
+        static  void setTrackStatus(TDTrackStatus status,string appid = "");
+        
         static  void enableTrackLog(bool enableLog);
-       
+        
         static  string getDeviceId();
         
         static void calibrateTime(long long timestamp);
-
+        
         static void calibrateTimeWithNtp(string ntpServer);
         
         static string currentAppId(string appId);
         
         static string getLocalRegion();
         
-        static void enableThirdPartySharing(TAThirdPartyType type, string appId = "");
+        static void enableThirdPartySharing(TDThirdPartyType type, string appId = "");
         
-        static void enableThirdPartySharing(TAThirdPartyType type, const TDJSONObject &properties, string appId = "");
-
+        static void enableThirdPartySharing(TDThirdPartyType type, const TDJSONObject &properties, string appId = "");
+        
     };
-
+    }
 }

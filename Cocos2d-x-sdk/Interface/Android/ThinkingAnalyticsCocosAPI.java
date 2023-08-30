@@ -25,7 +25,7 @@ import cn.thinkingdata.android.encrypt.TDSecreteKey;
 import cn.thinkingdata.android.utils.TDLog;
 
 public class ThinkingAnalyticsCocosAPI {
-    private static final String TAG = "ThinkingAnalyticsAPI";
+    private static final String TAG = "TDAnalytics";
     static Map<String, ThinkingAnalyticsSDK> sInstances = new HashMap<>();
     static List<String> sAppIds = new ArrayList<>();
 

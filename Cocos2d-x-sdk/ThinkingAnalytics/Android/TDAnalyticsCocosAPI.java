@@ -1,15 +1,10 @@
 package cn.thinkingdata.android;
 
-import android.app.Activity;
-import android.app.Dialog;
-import android.app.Fragment;
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
-import android.webkit.WebView;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -21,11 +16,18 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import cn.thinkingdata.android.TDConfig;
+import cn.thinkingdata.android.TDFirstEvent;
+import cn.thinkingdata.android.TDOverWritableEvent;
+import cn.thinkingdata.android.TDPresetProperties;
+import cn.thinkingdata.android.TDUpdatableEvent;
+import cn.thinkingdata.android.ThinkingAnalyticsEvent;
+import cn.thinkingdata.android.ThinkingAnalyticsSDK;
 import cn.thinkingdata.android.encrypt.TDSecreteKey;
 import cn.thinkingdata.android.utils.TDLog;
 
-public class ThinkingAnalyticsCocosAPI {
-    private static final String TAG = "ThinkingAnalyticsAPI";
+public class TDAnalyticsCocosAPI {
+    private static final String TAG = "TDAnalytics";
     static Map<String, ThinkingAnalyticsSDK> sInstances = new HashMap<>();
     static List<String> sAppIds = new ArrayList<>();
 
@@ -38,9 +40,7 @@ public class ThinkingAnalyticsCocosAPI {
         return ThinkingAnalyticsSDK.sharedInstance(config);
     }
 
-    public static ThinkingAnalyticsSDK sharedInstance(TDConfig config, int mode) {
-        config.setMode(TDConfig.ModeEnum.values()[mode]);
-
+    public static ThinkingAnalyticsSDK sharedInstance(TDConfig config) {
         String instanceName = TextUtils.isEmpty(config.getName()) ? config.mToken : config.getName();
         ThinkingAnalyticsSDK instance = sInstances.get(instanceName);
         if (instance == null) {
@@ -52,6 +52,7 @@ public class ThinkingAnalyticsCocosAPI {
     }
 
     public static ThinkingAnalyticsSDK sharedInstance(TDConfig config, int mode, int enableEncrypt, int version, String publicKey) {
+
         config.setMode(TDConfig.ModeEnum.values()[mode]);
 
         if (enableEncrypt == 1) {
@@ -77,10 +78,10 @@ public class ThinkingAnalyticsCocosAPI {
 
     public static String createLightInstance(String appId)
     {
-       ThinkingAnalyticsSDK instance =  currentInstance(appId).createLightInstance();
-       String token =  UUID.randomUUID().toString();
-       sInstances.put(token,instance);
-       return token;
+        ThinkingAnalyticsSDK instance =  currentInstance(appId).createLightInstance();
+        String token =  UUID.randomUUID().toString();
+        sInstances.put(token,instance);
+        return token;
     }
     public static String currentToken(String appId)
     {
@@ -96,13 +97,13 @@ public class ThinkingAnalyticsCocosAPI {
     }
     public static  ThinkingAnalyticsSDK currentInstance(String appId)
     {
-       String token = currentToken(appId);
-       if(sInstances.containsKey(token))
-       {
-           return sInstances.get(token);
-       }
-       TDLog.d(TAG,"Instance does not exist");
-       return null;
+        String token = currentToken(appId);
+        if(sInstances.containsKey(token))
+        {
+            return sInstances.get(token);
+        }
+        TDLog.d(TAG,"Instance does not exist");
+        return null;
     }
 
     public static  void track(String eventName,String appId) {
@@ -137,7 +138,7 @@ public class ThinkingAnalyticsCocosAPI {
     }
 
 
-    public static  void track(ThinkingAnalyticsEvent event,String appId) {
+    public static  void track(ThinkingAnalyticsEvent event, String appId) {
         if(currentInstance(appId) != null)
         {
             currentInstance(appId).track(event);
@@ -200,10 +201,10 @@ public class ThinkingAnalyticsCocosAPI {
     }
 
 
-    public static  void identify(String identify,String appId) {
+    public static  void setDistinctId(String distinctId,String appId) {
         if(currentInstance(appId) != null)
         {
-            currentInstance(appId).identify(identify);
+            currentInstance(appId).identify(distinctId);
         }
     }
 
@@ -481,6 +482,29 @@ public class ThinkingAnalyticsCocosAPI {
                 var4.printStackTrace();
             }
         }
+    }
 
+    public static native String getDynamicPropertiesJson(String appId);
+    public static void setDynamicSuperProperties(String appId) {
+        if (currentInstance(appId) != null) {
+            try {
+                currentInstance(appId).setDynamicSuperPropertiesTracker(new ThinkingAnalyticsSDK.DynamicSuperPropertiesTracker() {
+                    @Override
+                    public JSONObject getDynamicSuperProperties() {
+                        String jsonText = getDynamicPropertiesJson(appId);
+                        JSONObject jsonObject;
+                        try {
+                            jsonObject = new JSONObject(jsonText);
+                        } catch (JSONException e) {
+                            jsonObject = new JSONObject();
+                            e.printStackTrace();
+                        }
+                        return jsonObject;
+                    }
+                });
+            } catch (Exception var4) {
+                var4.printStackTrace();
+            }
+        }
     }
 }

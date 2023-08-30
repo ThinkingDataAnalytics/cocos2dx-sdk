@@ -8,7 +8,7 @@
 //#ifndef ThinkingSDKObject_h
 //#define ThinkingSDKObject_h
 
-#include "../Common/ThinkingAnalyticsAPI.h"
+#include "../Common/TDAnalytics.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -24,15 +24,17 @@
 
 USING_NS_CC;
 
-using namespace thinkingdata;
+using namespace thinkingdata::analytics;
 
 namespace thinkingdata {
+    namespace analytics {
+    
     class ThinkingSDKObject
     {
     public:
         
         TDJSONObject m_superProperties;
-     
+        
         ThinkingSDKObject();
         ThinkingSDKObject(string appid, string server);
         ThinkingSDKObject(string appid, string server, string name);
@@ -63,9 +65,9 @@ namespace thinkingdata {
         
         void track(string eventName);
         void track(string eventName,const TDJSONObject& node);
-        void trackFirst(TDFirstEvent *event);
-        void trackUpdate(TDUpdatableEvent *event);
-        void trackOverWrite(TDOverWritableEvent *event);
+        void trackFirst(TDFirstEventModel *event);
+        void trackUpdate(TDUpdatableEventModel *event);
+        void trackOverWrite(TDOverwritableEventModel *event);
         void login(string accountID);
         void logout();
         
@@ -83,7 +85,7 @@ namespace thinkingdata {
         
         void flush(string eventName);
         void flush(string eventName, const TDJSONObject &properties);
-        void flush(const ThinkingAnalyticsEvent &event);
+        void flush(const TDEventModel &event);
         void flushUser(string eventType, const TDJSONObject &properties);
         void flush(string eventName, string eventType, const TDJSONObject &properties, string eventID, string firstCheckID);
         void complete(cocos2d::network::HttpClient *client, cocos2d::network::HttpResponse *response);
@@ -106,6 +108,7 @@ namespace thinkingdata {
         string m_accountId;
         string m_deviceId;
     };
+    }
 }
 
 //#endif /* ThinkingSDKObject_h */
