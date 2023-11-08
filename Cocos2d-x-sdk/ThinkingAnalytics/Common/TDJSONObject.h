@@ -44,7 +44,10 @@ namespace thinkingdata {
         TDSSLPinningModeCertificate   = 1 << 1
     };
 
-
+    /**
+     * @brief JSON Object
+     * 
+     */
     class TDJSONObject {
     public:
         
@@ -162,7 +165,10 @@ namespace thinkingdata {
         OVERWRITABLE=3
     };
 
-
+    /**
+     * @brief Custom Event Model
+     * 
+     */
     class TDEventModel
     {
     public:
@@ -172,6 +178,10 @@ namespace thinkingdata {
         string mExtraId;
         TDEventModel(string eventName,TDJSONObject properties);
     };
+    /**
+     * @brief First Event Model
+     * 
+     */
     class TDFirstEventModel: public TDEventModel
     {
     public:
@@ -179,17 +189,29 @@ namespace thinkingdata {
         void setFirstCheckId(string firstCheckId);
         
     };
+    /**
+     * @brief Updatable Event Mode
+     * 
+     */
     class TDUpdatableEventModel: public TDEventModel
     {
     public:
         TDUpdatableEventModel(string eventName,TDJSONObject properties,string eventId);
     };
+    /**
+     * @brief Overwritable Event Model
+     * 
+     */
     class TDOverwritableEventModel: public TDEventModel
     {
     public:
         TDOverwritableEventModel(string eventName,TDJSONObject properties,string eventId);
     };
 
+    /**
+     * @brief Preset Properties
+     * 
+     */
     class TDPresetProperties
     {
     public:
@@ -224,7 +246,10 @@ namespace thinkingdata {
         TD_DEBUG_ONLY
     };
 
-    // RSA+AES
+    /**
+     * @brief Data Encryption Key
+     * 
+     */
     class TDSecretKey
     {
     public:
@@ -234,6 +259,10 @@ namespace thinkingdata {
         ~TDSecretKey();
     };
    
+    /**
+     * @brief SDK Config Information
+     * 
+     */
     class TDConfig
     {
     private:
