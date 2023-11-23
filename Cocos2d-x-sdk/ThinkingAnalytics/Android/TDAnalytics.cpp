@@ -4,11 +4,11 @@
 #include <map>
 #include <vector>
 #include "cocos2d.h"
-#include "cn_thinkingdata_android_TDAnalyticsCocosAPI.h"
+#include "cn_thinkingdata_analytics_TDAnalyticsCocosAPI.h"
 
 using namespace thinkingdata::analytics;
 USING_NS_CC;
-#define THINKING_JAVA_CLASS "cn/thinkingdata/android/TDAnalyticsCocosAPI"
+#define THINKING_JAVA_CLASS "cn/thinkingdata/analytics/TDAnalyticsCocosAPI"
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 extern "C"{
@@ -168,11 +168,11 @@ static string getDynamicPropertiesJson(string appId) {
 }
 
 /*
- * Class:     cn_thinkingdata_android_TDAnalyticsCocosAPI
+ * Class:     cn_thinkingdata_analytics_TDAnalyticsCocosAPI
  * Method:    getDynamicPropertiesJson
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_cn_thinkingdata_android_TDAnalyticsCocosAPI_getDynamicPropertiesJson
+JNIEXPORT jstring JNICALL Java_cn_thinkingdata_analytics_TDAnalyticsCocosAPI_getDynamicPropertiesJson
         (JNIEnv *env, jclass, jstring appId) {
     string _appId = jStringToString(env,appId);
     string json = getDynamicPropertiesJson(_appId);
@@ -541,7 +541,7 @@ string TDAnalytics::getDeviceId()
 {
     string deviceID;
     JniMethodInfo methodInfo;
-    if(cocos2d::JniHelper::getStaticMethodInfo(methodInfo,"cn/thinkingdata/android/TDAnalyticsCocosAPI","getDeviceId","()Ljava/lang/String;"))
+    if(cocos2d::JniHelper::getStaticMethodInfo(methodInfo,"cn/thinkingdata/analytics/TDAnalyticsCocosAPI","getDeviceId","()Ljava/lang/String;"))
     {
         jstring result = (jstring)methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID);
         deviceID = jStringToString(methodInfo.env,result);
@@ -569,7 +569,7 @@ TDPresetProperties* TDAnalytics::getPresetProperties(string appId)
 {
     TDPresetProperties *presetProperties = new TDPresetProperties();
     JniMethodInfo methodInfo;
-    if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"getPresetProperties","(Ljava/lang/String;)Lcn/thinkingdata/android/TDPresetProperties;"))
+    if(JniHelper::getStaticMethodInfo(methodInfo,THINKING_JAVA_CLASS,"getPresetProperties","(Ljava/lang/String;)Lcn/thinkingdata/analytics/TDPresetProperties;"))
     {
         jstring jAppId = methodInfo.env->NewStringUTF(appId.c_str());
 
@@ -760,9 +760,9 @@ void TDAnalytics::init(TDConfig config) {
 
     cocos2d::JniMethodInfo jniGetConfig;
     if (!cocos2d::JniHelper::getStaticMethodInfo(jniGetConfig,
-                                                 "cn/thinkingdata/android/TDConfig",
+                                                 "cn/thinkingdata/analytics/TDConfig",
                                                  "getInstance",
-                                                 "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcn/thinkingdata/android/TDConfig;")) {
+                                                 "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcn/thinkingdata/analytics/TDConfig;")) {
         return;
     }
     jstring _appId = jniGetConfig.env->NewStringUTF(config.getAppId().c_str());
@@ -773,7 +773,7 @@ void TDAnalytics::init(TDConfig config) {
     releaseMethod(jniGetConfig);
 
     JniMethodInfo methodInfo1;
-    if(JniHelper::getStaticMethodInfo(methodInfo1,THINKING_JAVA_CLASS,"sharedInstance","(Lcn/thinkingdata/android/TDConfig;IIILjava/lang/String;)Lcn/thinkingdata/android/ThinkingAnalyticsSDK;"))
+    if(JniHelper::getStaticMethodInfo(methodInfo1,THINKING_JAVA_CLASS,"sharedInstance","(Lcn/thinkingdata/analytics/TDConfig;IIILjava/lang/String;)Lcn/thinkingdata/analytics/ThinkingAnalyticsSDK;"))
     {
         int mode = 0;
         if(config.getModel() == TD_DEBUG) {

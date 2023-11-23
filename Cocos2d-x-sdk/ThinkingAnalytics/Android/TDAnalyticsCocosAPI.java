@@ -1,4 +1,4 @@
-package cn.thinkingdata.android;
+package cn.thinkingdata.analytics;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -16,15 +16,15 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import cn.thinkingdata.android.TDConfig;
-import cn.thinkingdata.android.TDFirstEvent;
-import cn.thinkingdata.android.TDOverWritableEvent;
-import cn.thinkingdata.android.TDPresetProperties;
-import cn.thinkingdata.android.TDUpdatableEvent;
-import cn.thinkingdata.android.ThinkingAnalyticsEvent;
-import cn.thinkingdata.android.ThinkingAnalyticsSDK;
-import cn.thinkingdata.android.encrypt.TDSecreteKey;
-import cn.thinkingdata.android.utils.TDLog;
+import cn.thinkingdata.analytics.TDConfig;
+import cn.thinkingdata.analytics.TDFirstEvent;
+import cn.thinkingdata.analytics.TDOverWritableEvent;
+import cn.thinkingdata.analytics.TDPresetProperties;
+import cn.thinkingdata.analytics.TDUpdatableEvent;
+import cn.thinkingdata.analytics.ThinkingAnalyticsEvent;
+import cn.thinkingdata.analytics.ThinkingAnalyticsSDK;
+import cn.thinkingdata.analytics.encrypt.TDSecreteKey;
+// import cn.thinkingdata.android.utils.TDLog;
 
 public class TDAnalyticsCocosAPI {
     private static final String TAG = "TDAnalytics";
@@ -102,7 +102,7 @@ public class TDAnalyticsCocosAPI {
         {
             return sInstances.get(token);
         }
-        TDLog.d(TAG,"Instance does not exist");
+        // TDLog.d(TAG,"Instance does not exist");
         return null;
     }
 

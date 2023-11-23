@@ -17,7 +17,7 @@
  * 
  */
 const string LIB_NAME = "Cocos2d-x";
-const string LIB_VERSION = "2.0.0";
+const string LIB_VERSION = "2.0.1";
 
 using namespace std;
 template < typename TDType >
