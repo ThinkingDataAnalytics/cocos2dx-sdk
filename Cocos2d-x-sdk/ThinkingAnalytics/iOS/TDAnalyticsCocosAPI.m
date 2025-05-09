@@ -6,7 +6,7 @@
 //
 
 #import "TDAnalyticsCocosAPI.h"
-#import "ThinkingAnalyticsSDK.h"
+#import <ThinkingSDK/ThinkingSDK.h>
 #import <ThinkingSDK/TDConfig.h>
 #import <ThinkingSDK/TDPresetProperties.h>
 
